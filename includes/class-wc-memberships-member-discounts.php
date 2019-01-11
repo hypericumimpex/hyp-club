@@ -16,9 +16,8 @@
  * versions in the future. If you wish to customize WooCommerce Memberships for your
  * needs please refer to https://docs.woocommerce.com/document/woocommerce-memberships/ for more information.
  *
- * @package   WC-Memberships/Classes
  * @author    SkyVerge
- * @copyright Copyright (c) 2014-2018, SkyVerge, Inc.
+ * @copyright Copyright (c) 2014-2019, SkyVerge, Inc.
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
@@ -356,7 +355,15 @@ class WC_Memberships_Member_Discounts {
 			" ) );
 
 			if ( ! empty( $products ) ) {
-				$this->update_excluded_member_discounts_products_cache( $products );
+
+				// account for variations of variable products
+				$parents  = '(' . implode( ',', $products ) . ')';
+				$products = array_merge( $products, array_map( 'absint', $wpdb->get_col( "
+					SELECT ID FROM $wpdb->posts 
+					WHERE post_parent IN $parents
+				" ) ) );
+
+				$this->update_excluded_member_discounts_products_cache( array_unique( $products ) );
 			}
 		}
 

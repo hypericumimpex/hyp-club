@@ -16,9 +16,8 @@
  * versions in the future. If you wish to customize WooCommerce Memberships for your
  * needs please refer to https://docs.woocommerce.com/document/woocommerce-memberships/ for more information.
  *
- * @package   WC-Memberships/Classes
  * @author    SkyVerge
- * @copyright Copyright (c) 2014-2018, SkyVerge, Inc.
+ * @copyright Copyright (c) 2014-2019, SkyVerge, Inc.
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
@@ -116,15 +115,15 @@ class User_Memberships extends Controller {
 
 		$params['plan'] = array(
 			'description'       => __( 'Limit results to user memberships for a specific plan (matched by ID or slug).', 'woocommerce-memberships' ),
-			'type'              => 'mixed',
+			'type'              => 'string',
 			'sanitize_callback' => 'sanitize_key',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
 		$params['customer'] = array(
 			'description'       => __( 'Limit results to user memberships belonging to a specific customer (matched by ID, login name or email address).', 'woocommerce-memberships' ),
-			'type'              => 'mixed',
-			'sanitize_callback' => 'strval',
+			'type'              => 'string',
+			'sanitize_callback' => 'sanitize_text_field',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 
@@ -207,17 +206,29 @@ class User_Memberships extends Controller {
 		// filter by customer
 		if ( isset( $request['customer'] ) ) {
 
+			$customer_id = 0;
+
 			if ( is_numeric( $request['customer'] ) ) {
-				$customer_id = (int) $request['customer'];
-			} elseif ( is_email( $request['customer'] )  && ( $customer = get_user_by( 'email', $request['customer'] ) ) ) {
-				$customer_id = (int) $customer->ID;
-			} elseif ( is_string( $request['customer'] ) && ( $customer = get_user_by( 'login', $request['customer'] ) ) ) {
-				$customer_id = (int) $customer->ID;
-			} else {
-				$customer_id = 0;
+
+				$customer_id = $request['customer'];
+
+			} elseif ( is_string( $request['customer'] ) ) {
+
+				if ( is_email( $request['customer'] ) ) {
+					$customer = get_user_by( 'email', $request['customer'] );
+				} else {
+					$customer = get_user_by( 'login', $request['customer'] );
+				}
+
+				$customer_id = $customer instanceof \WP_User ? $customer->ID : 0;
 			}
 
-			$query_args['author'] = $customer_id;
+			$query_args['author'] = (int) $customer_id;
+
+			// enforces empty array on results if the author is undetermined
+			if ( 0 === $customer_id ) {
+				$query_args['post__in'] = array( 0 );
+			}
 		}
 
 		// filter by order or sort order

@@ -1,5 +1,15 @@
 *** WooCommerce Memberships Changelog ***
 
+2019.01.09 - version 1.12.3
+ * Tweak - Allow merging existing user memberships in CSV imports without specifying a user membership ID if the user ID, login name or email address is provided in combination with the plan ID or slug
+ * Tweak - Ensure LearnDash course overview and status are hidden when restricted
+ * Tweak - Improve performance when generating restriction or discount notices that include products
+ * Tweak - Allow removing an installment plan flag on subscription-tied user memberships on CSV imports through an `installment_plan` column
+ * Fix - Ensure that if a variable product is excluded from receiving member discounts, all its variations are consistently excluded from discounts as well
+ * Fix - Ensure that the `customer` query var in User Memberships REST API requests to get user memberships by customer works consistently
+ * Fix - Pass the correct return type for the `display_post_states` filter callback
+ * Dev - Add WooCommerce debug logging when starting new user memberships CSV import jobs
+
 2018.11.09 - version 1.12.2
  * Fix - Ensure that the `wcm_restrict` shortcode can correctly parse optional attributes
 

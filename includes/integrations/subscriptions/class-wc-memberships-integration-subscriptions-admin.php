@@ -16,9 +16,8 @@
  * versions in the future. If you wish to customize WooCommerce Memberships for your
  * needs please refer to https://docs.woocommerce.com/document/woocommerce-memberships/ for more information.
  *
- * @package   WC-Memberships/Classes
  * @author    SkyVerge
- * @copyright Copyright (c) 2014-2018, SkyVerge, Inc.
+ * @copyright Copyright (c) 2014-2019, SkyVerge, Inc.
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
@@ -659,19 +658,19 @@ class WC_Memberships_Integration_Subscriptions_Admin {
 
 		// note: we need to instantiate plan object via post object and not simply the id in this metabox context
 		$membership_post = get_post( $post_id );
+		$integration     = wc_memberships()->get_integrations_instance()->get_subscriptions_instance();
 
 		// bail out if we are in the wrong meta box or for some reason post is invalid
-		if ( 'wc-memberships-user-membership-data' !== $meta_box_id || ! $membership_post instanceof \WP_Post ) {
+		if ( ! $integration || 'wc-memberships-user-membership-data' !== $meta_box_id || ! $membership_post instanceof \WP_Post ) {
 			return;
 		}
 
 		$subscription_membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( $membership_post );
 		$new_subscription_id     = ! empty( $posted_data['_subscription_id'] ) ? (int) $posted_data['_subscription_id'] : null;
 		$subscription            = ! empty( $new_subscription_id ) ? wcs_get_subscription( $new_subscription_id ) : null;
-		$integration             = wc_memberships()->get_integrations_instance()->get_subscriptions_instance();
 
 		// the membership is already linked to a subscription
-		if ( $integration && wc_memberships_is_user_membership_linked_to_subscription( $subscription_membership ) ) {
+		if ( wc_memberships_is_user_membership_linked_to_subscription( $subscription_membership ) ) {
 
 			$old_subscription_id = $subscription_membership->get_subscription_id();
 
@@ -698,7 +697,7 @@ class WC_Memberships_Integration_Subscriptions_Admin {
 			$subscription_membership->set_subscription_id( $new_subscription_id );
 
 			// maybe update the trial end date
-			if ( $trial_end = wc_memberships()->get_integrations_instance()->get_subscriptions_instance()->get_subscription_event_date( $subscription, 'trial_end' ) ) {
+			if ( $trial_end = $integration->get_subscription_event_date( $subscription, 'trial_end' ) ) {
 				$subscription_membership->set_free_trial_end_date( $trial_end );
 			}
 		}
@@ -878,7 +877,7 @@ class WC_Memberships_Integration_Subscriptions_Admin {
 
 				if ( $subscriptions && ( $utilities = $subscriptions->get_utilities_instance() ) ) {
 
-					return $utilities->export_user_membership_headers_add_subscription_id( $args );
+					return $utilities->add_user_memberships_export_subscription_headers( $args );
 				}
 
 				return is_array( $args ) ? $args : array();
@@ -906,7 +905,7 @@ class WC_Memberships_Integration_Subscriptions_Admin {
 
 				if ( $subscriptions  && isset( $args[0], $args[1], $args[2], $args[3] ) && ( $utilities = $subscriptions->get_utilities_instance() ) ) {
 
-					return $utilities->import_user_membership_data( $args[0], $args[1], $args[2], $args[3] );
+					return $utilities->parse_user_membership_subscription_import_data( $args[0], $args[1], $args[2], $args[3] );
 				}
 
 				return is_array( $args ) ? $args : array();
@@ -919,7 +918,7 @@ class WC_Memberships_Integration_Subscriptions_Admin {
 				$subscriptions = wc_memberships()->get_integrations_instance()->get_subscriptions_instance();
 
 				if ( $subscriptions  && isset( $args[0], $args[1], $args[2], $args[3] ) && ( $utilities = $subscriptions->get_utilities_instance() ) ) {
-					$utilities->import_user_membership_subscription_id( $args[0], $args[1], $args[2], $args[3] );
+					$utilities->import_user_membership_subscription_data( $args[0], $args[1], $args[2], $args[3] );
 				}
 
 				return null;

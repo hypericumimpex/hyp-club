@@ -16,10 +16,8 @@
  * versions in the future. If you wish to customize WooCommerce Memberships for your
  * needs please refer to https://docs.woocommerce.com/document/woocommerce-memberships/ for more information.
  *
- * @package   WC-Memberships/Frontend/Checkout
  * @author    SkyVerge
- * @category  Frontend
- * @copyright Copyright (c) 2014-2018, SkyVerge, Inc.
+ * @copyright Copyright (c) 2014-2019, SkyVerge, Inc.
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
@@ -281,7 +279,17 @@ class WC_Memberships_Posts_Restrictions {
 			$the_query = $wp_query;
 		}
 
-		return $the_query instanceof \WP_Query && $the_query->is_feed() && ! wc_memberships()->get_restrictions_instance()->is_restriction_mode( 'hide_content' );
+		$feed_is_restricted = $the_query instanceof \WP_Query && $the_query->is_feed() && ! wc_memberships()->get_restrictions_instance()->is_restriction_mode( 'hide_content' );
+
+		/**
+		 * Toggles whether the RSS feed should be restricted.
+		 *
+		 * @since 1.12.3
+		 *
+		 * @param bool $feed_is_restricted whether the feed should be restricted
+		 * @param \WP_Query $the_query the query object
+		 */
+		return (bool) apply_filters( 'wc_memberships_is_feed_restricted', $feed_is_restricted, $the_query );
 	}
 
 

@@ -16,10 +16,8 @@
  * versions in the future. If you wish to customize WooCommerce Memberships for your
  * needs please refer to https://docs.woocommerce.com/document/woocommerce-memberships/ for more information.
  *
- * @package   WC-Memberships/Admin
  * @author    SkyVerge
- * @category  Admin
- * @copyright Copyright (c) 2014-2018, SkyVerge, Inc.
+ * @copyright Copyright (c) 2014-2019, SkyVerge, Inc.
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
@@ -586,10 +584,10 @@ class WC_Memberships_Admin_User_Memberships {
 	 * @param int $post_id Post ID
 	 * @return string Modified title
 	 */
-	public function user_membership_title( $title, $post_id ) {
+	public function user_membership_title( $title, $post_id = null ) {
 		global $pagenow;
 
-		if ( 'wc_user_membership' === get_post_type( $post_id ) ) {
+		if ( $post_id && 'wc_user_membership' === get_post_type( $post_id ) ) {
 
 			$user_membership = wc_memberships_get_user_membership( $post_id );
 
@@ -621,7 +619,7 @@ class WC_Memberships_Admin_User_Memberships {
 	 * @return string
 	 */
 	public function remove_post_states( $states ) {
-		return '';
+		return array();
 	}
 
 

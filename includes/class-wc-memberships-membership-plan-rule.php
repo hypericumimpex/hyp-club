@@ -16,9 +16,8 @@
  * versions in the future. If you wish to customize WooCommerce Memberships for your
  * needs please refer to https://docs.woocommerce.com/document/woocommerce-memberships/ for more information.
  *
- * @package   WC-Memberships/Classes
  * @author    SkyVerge
- * @copyright Copyright (c) 2014-2018, SkyVerge, Inc.
+ * @copyright Copyright (c) 2014-2019, SkyVerge, Inc.
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
@@ -600,7 +599,7 @@ class WC_Memberships_Membership_Plan_Rule {
 				break;
 			}
 
-			$this->children_ids = array_unique( call_user_func_array( 'array_merge', $children ) );
+			$this->children_ids = array_unique( array_map( 'absint', call_user_func_array( 'array_merge', $children ) ) );
 		}
 
 		return $this->children_ids;
@@ -1168,9 +1167,22 @@ class WC_Memberships_Membership_Plan_Rule {
 	public function current_context_allows_editing() {
 		global $post;
 
-		$object_ids = $this->get_object_ids();
+		$allow_edit = false;
 
-		return $post ? $this->get_membership_plan_id() === (int) $post->ID || ( is_array( $object_ids ) && count( $object_ids ) === 1 && ( ! $post || $post && $this->applies_to( 'object_id', $post->ID ) ) ) : false;
+		if ( $post ) {
+
+			$allow_edit = $this->get_membership_plan_id() === (int) $post->ID;
+
+			if ( ! $allow_edit ) {
+
+				$object_ids = $this->get_object_ids();
+				$allow_edit = is_array( $object_ids )
+				              && count( $object_ids ) === 1
+				              && $this->applies_to( 'object_id', $post->ID );
+			}
+		}
+
+		return $allow_edit;
 	}
 
 
@@ -1214,7 +1226,7 @@ class WC_Memberships_Membership_Plan_Rule {
 				}
 			}
 
-		/** @deprecated since 1.9.0 - remove by version 1.12.0 */
+		/** @deprecated since 1.9.0 - remove by version 1.13.0 */
 		} elseif ( isset( $args[0] ) && 0 === strpos( $method, 'set_' ) ) {
 
 			$key = str_replace( 'set_', '', $method );

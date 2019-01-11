@@ -16,10 +16,8 @@
  * versions in the future. If you wish to customize WooCommerce Memberships for your
  * needs please refer to https://docs.woocommerce.com/document/woocommerce-memberships/ for more information.
  *
- * @package   WC-Memberships/Frontend/Checkout
  * @author    SkyVerge
- * @category  Frontend
- * @copyright Copyright (c) 2014-2018, SkyVerge, Inc.
+ * @copyright Copyright (c) 2014-2019, SkyVerge, Inc.
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
@@ -445,6 +443,42 @@ class WC_Memberships_Restrictions {
 		}
 
 		return $this->inherit_restrictions;
+	}
+
+
+	/**
+	 * Enables inheritance for restriction rules.
+	 *
+	 * @since 1.12.3
+	 *
+	 * @return bool
+	 */
+	public function enable_restriction_rules_inheritance() {
+
+		if ( $success = update_option( $this->inherit_restrictions_option, 'yes' ) ) {
+
+			$this->inherit_restrictions = true;
+		}
+
+		return $success;
+	}
+
+
+	/**
+	 * Disables inheritance for restriction rules.
+	 *
+	 * @since 1.12.3
+	 *
+	 * @return bool
+	 */
+	public function disable_restriction_rules_inheritance() {
+
+		if ( $success = update_option( $this->inherit_restrictions_option, 'no' ) ) {
+
+			$this->inherit_restrictions = false;
+		}
+
+		return $success;
 	}
 
 

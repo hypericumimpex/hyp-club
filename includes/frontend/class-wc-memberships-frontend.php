@@ -16,10 +16,8 @@
  * versions in the future. If you wish to customize WooCommerce Memberships for your
  * needs please refer to https://docs.woocommerce.com/document/woocommerce-memberships/ for more information.
  *
- * @package   WC-Memberships/Frontend
  * @author    SkyVerge
- * @category  Frontend
- * @copyright Copyright (c) 2014-2018, SkyVerge, Inc.
+ * @copyright Copyright (c) 2014-2019, SkyVerge, Inc.
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
@@ -539,15 +537,17 @@ class WC_Memberships_Frontend {
 
 				$memberships_classes = $this->membership_content_classes[ $post_id ];
 
-			} elseif ( ! wc_memberships_is_members_area() ) {
+			} else {
+
+				$is_user_logged_in = is_user_logged_in();
 
 				if ( 'product' === get_post_type( $post ) ) {
 
-					if ( wc_memberships_is_product_viewing_restricted( $post_id ) ) {
+					if ( wc_memberships_is_product_viewing_restricted( $post ) ) {
 
 						$memberships_classes[] = 'membership-content';
 
-						if ( current_user_can( 'wc_memberships_view_restricted_product', $post_id ) ) {
+						if ( $is_user_logged_in && current_user_can( 'wc_memberships_view_restricted_product', $post_id ) ) {
 							if ( ! current_user_can( 'wc_memberships_view_delayed_product', $post_id ) ) {
 								$memberships_classes[] = 'access-delayed';
 							} else {
@@ -558,11 +558,11 @@ class WC_Memberships_Frontend {
 						}
 					}
 
-					if ( wc_memberships_is_product_purchasing_restricted( $post_id ) ) {
+					if ( wc_memberships_is_product_purchasing_restricted( $post ) ) {
 
 						$memberships_classes[] = 'membership-content';
 
-						if ( current_user_can( 'wc_memberships_purchase_restricted_product', $post_id ) ) {
+						if ( $is_user_logged_in && current_user_can( 'wc_memberships_purchase_restricted_product', $post_id ) ) {
 							if ( ! current_user_can( 'wc_memberships_purchase_delayed_product', $post_id ) ) {
 								$memberships_classes[] = 'purchase-delayed';
 							} else {
@@ -573,22 +573,22 @@ class WC_Memberships_Frontend {
 						}
 					}
 
-					if ( wc_memberships_product_has_member_discount( $post_id ) ) {
+					if ( wc_memberships_product_has_member_discount( $post ) ) {
 
 						$memberships_classes[] = 'member-discount';
 
-						if ( wc_memberships_user_has_member_discount( $post_id ) ) {
+						if ( $is_user_logged_in && wc_memberships_user_has_member_discount( $post ) ) {
 							$memberships_classes[] = 'discount-granted';
 						} else {
 							$memberships_classes[] = 'discount-restricted';
 						}
 					}
 
-				} elseif ( wc_memberships_is_post_content_restricted( $post_id ) ) {
+				} elseif ( wc_memberships_is_post_content_restricted( $post ) ) {
 
 					$memberships_classes[] = 'membership-content';
 
-					if ( current_user_can( 'wc_memberships_view_restricted_post_content', $post_id ) ) {
+					if ( $is_user_logged_in && current_user_can( 'wc_memberships_view_restricted_post_content', $post_id ) ) {
 						if ( ! current_user_can( 'wc_memberships_view_delayed_post_content', $post_id ) ) {
 							$memberships_classes[] = 'access-delayed';
 						} else {
@@ -622,56 +622,28 @@ class WC_Memberships_Frontend {
 
 		if ( is_array( $classes ) ) {
 
+			$current_user_id     = get_current_user_id();
 			$memberships_classes = array();
+			$is_member           = $current_user_id > 0 && current_user_can( 'wc_memberships_access_all_restricted_content' );
+
+			if ( ! $is_member && $current_user_id > 0 ) {
+				$user_memberships = wc_memberships_get_user_memberships( $current_user_id, array( 'fields' => 'ids' ) );
+				$is_member        = ! empty( $user_memberships );
+			}
 
 			if ( is_singular() ) {
-
-				if ( wc_memberships_is_members_area() ) {
+				if ( $is_members_area = wc_memberships_is_members_area() ) {
 					$memberships_classes = array( 'members-area' );
-				} else {
+				} elseif ( $post instanceof \WP_Post ) {
 					$memberships_classes = $this->get_membership_content_classes( $post );
-				}
-
-				if ( ! empty( $memberships_classes ) ) {
-
-					$is_member = current_user_can( 'wc_memberships_access_all_restricted_content' );
-
-					if ( ! $is_member ) {
-
-						if ( wc_memberships_is_members_area() ) {
-
-							$is_member = wc_memberships_is_user_member();
-
-						} elseif ( 'product' === get_post_type( $post ) ) {
-
-							if ( wc_memberships_is_product_viewing_restricted() ) {
-								$is_member = current_user_can( 'wc_memberships_view_restricted_product', $post->ID );
-							}
-
-							if ( wc_memberships_is_product_purchasing_restricted() ) {
-								$is_member = current_user_can( 'wc_memberships_purchase_restricted_product', $post->ID );
-							}
-
-						} else {
-
-							$is_member = current_user_can( 'wc_memberships_view_restricted_post_content', $post->ID );
-						}
-					}
-
-					if ( $is_member ) {
-						$memberships_classes[] = 'member-logged-in';
-					}
 				}
 			}
 
-			if (    empty( $memberships_classes )
-			     && wc_memberships_is_user_active_member()
-			     && ( is_archive() || get_queried_object_id() === (int) get_option( 'page_on_front' ) ) ) {
-
+			if ( $is_member ) {
 				$memberships_classes[] = 'member-logged-in';
 			}
 
-			$classes = array_merge( $classes, $memberships_classes );
+			$classes = array_unique( array_merge( $classes, $memberships_classes ) );
 		}
 
 		return $classes;

@@ -16,9 +16,8 @@
  * versions in the future. If you wish to customize WooCommerce Memberships for your
  * needs please refer to https://docs.woocommerce.com/document/woocommerce-memberships/ for more information.
  *
- * @package   WC-Memberships/Classes
  * @author    SkyVerge
- * @copyright Copyright (c) 2014-2018, SkyVerge, Inc.
+ * @copyright Copyright (c) 2014-2019, SkyVerge, Inc.
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
@@ -140,8 +139,8 @@ function wc_memberships_is_post_content_restricted( $post_id = null ) {
 		$post_id   = $post->ID;
 		$post_type = $post->post_type;
 	} elseif ( $post_id instanceof \WP_Post ) {
+		$post_type = $post_id->post_type;
 		$post_id   = $post_id->ID;
-		$post_type = $post_id->$post_type;
 	}
 
 	$rules = is_numeric( $post_id ) && (int) $post_id > 0 ? wc_memberships()->get_rules_instance()->get_post_content_restriction_rules( $post_id ) : '';

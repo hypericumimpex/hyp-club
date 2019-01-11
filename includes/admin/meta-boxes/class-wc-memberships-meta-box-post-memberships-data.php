@@ -16,10 +16,8 @@
  * versions in the future. If you wish to customize WooCommerce Memberships for your
  * needs please refer to https://docs.woocommerce.com/document/woocommerce-memberships/ for more information.
  *
- * @package   WC-Memberships/Admin/Meta-Boxes
  * @author    SkyVerge
- * @category  Admin
- * @copyright Copyright (c) 2014-2018, SkyVerge, Inc.
+ * @copyright Copyright (c) 2014-2019, SkyVerge, Inc.
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
@@ -149,7 +147,7 @@ class WC_Memberships_Meta_Box_Post_Memberships_Data extends \WC_Memberships_Meta
 			// grab variables for the checkbox field and the custom message field below
 			$message_code            = \WC_Memberships_User_Messages::get_message_code_shorthand_by_post_type( $post );
 			$use_custom_message_meta = "_wc_memberships_use_custom_{$message_code}_message";
-			$use_custom              = wc_memberships_get_content_meta( $post, $use_custom_message_meta );
+			$use_custom              = 'yes' === wc_memberships_get_content_meta( $post, $use_custom_message_meta );
 			$message_meta            = "_wc_memberships_{$message_code}_message";
 			$message                 = wc_memberships_get_content_meta( $post, $message_meta );
 
