@@ -5,7 +5,7 @@
  * Description: Sell memberships that provide access to restricted content, products, discounts, and more!
  * Author: Romeo C.
  * Author URI: https://github.com/hypericumimpex/
- * Version: 1.12.3
+ * Version: 1.12.4
  * Text Domain: woocommerce-memberships
  * Domain Path: /i18n/languages/
  *
@@ -21,7 +21,7 @@
  *
  * Woo: 958589:9288e7609ad0b487b81ef6232efa5cfc
  * WC requires at least: 2.6.14
- * WC tested up to: 3.5.1
+ * WC tested up to: 3.5.4
  */
 
 defined( 'ABSPATH' ) or exit;
@@ -61,7 +61,7 @@ class WC_Memberships_Loader {
 	const MINIMUM_WC_VERSION = '2.6.14';
 
 	/** SkyVerge plugin framework version used by this plugin */
-	const FRAMEWORK_VERSION = '5.3.0';
+	const FRAMEWORK_VERSION = '5.3.1';
 
 	/** the plugin name, for displaying notices */
 	const PLUGIN_NAME = 'WooCommerce Memberships';

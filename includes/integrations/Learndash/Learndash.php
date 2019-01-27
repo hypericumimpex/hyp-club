@@ -60,7 +60,12 @@ class Learndash {
 		$user_id = get_current_user_id();
 		$post_id = $post instanceof \WP_Post ? $post->ID : get_the_ID(); // this filter runs in the loop
 
-		if ( $post_id && ! wc_memberships_user_can( $user_id, 'view', array( 'post' => $post_id ) ) ) {
+		// bail if we don't have a post ID or the post is public
+		if ( ! $post_id || ! wc_memberships_is_post_content_restricted( $post_id ) ) {
+			return $content;
+		}
+
+		if ( ! wc_memberships_user_can( $user_id, 'view', array( 'post' => $post_id ) ) ) {
 
 			$message_type = 'restricted';
 

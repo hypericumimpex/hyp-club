@@ -183,8 +183,18 @@ function wc_memberships_is_term_restricted( $term_id = null, $taxonomy = null ) 
 	if ( (int) $term_id > 0 && is_string( $taxonomy ) ) {
 
 		if ( 'product_cat' === $taxonomy ) {
+
 			$rules = wc_memberships()->get_rules_instance()->get_taxonomy_term_product_restriction_rules( $taxonomy, $term_id );
+
+			// filter out rules that are just for purchase restriction
+			foreach ( $rules as $index => $rule ) {
+				if ( $rule->is_access_type( 'purchase' ) ) {
+					unset( $rules[ $index ] );
+				}
+			}
+
 		} elseif ( '' !== $taxonomy ) {
+
 			$rules = wc_memberships()->get_rules_instance()->get_taxonomy_term_content_restriction_rules( $taxonomy, $term_id );
 		}
 

@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_3_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_3_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -260,6 +260,7 @@ abstract class WC_Memberships_User_Membership_Email extends \WC_Email {
 
 		return array(
 			'user_membership' => $this->object,
+			'email'           => $this,
 			'email_heading'   => $this->get_heading(),
 			'email_body'      => $this->get_body(),
 			'sent_to_admin'   => $this->sent_to_admin,

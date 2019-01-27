@@ -1,5 +1,12 @@
 *** WooCommerce Memberships Changelog ***
 
+2019.01.24 - version 1.12.4
+ * Fix - Ensure products from all plans are shown when listing products that grant access to content in the restriction notices
+ * Fix - Do not restrict from access product categories that are only targeted by product purchase restriction rules
+ * Fix - Have `woocommerce_email_header` and `woocommerce_email_footer` action hooks pass the email object as hook parameter
+ * Fix - Always show public LearnDash content
+ * Fix - Address a JavaScript issue in the Setup Wizard screens
+
 2019.01.09 - version 1.12.3
  * Tweak - Allow merging existing user memberships in CSV imports without specifying a user membership ID if the user ID, login name or email address is provided in combination with the plan ID or slug
  * Tweak - Ensure LearnDash course overview and status are hidden when restricted

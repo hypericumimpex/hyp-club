@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_3_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_3_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -821,7 +821,7 @@ class WC_Memberships_Capabilities {
 								// - if this rule has higher priority than last rule, override the previous access time
 								// - if this has the same priority as the last rule, and grants earlier access, override previous access time
 								if (    ( $rule_priority > $last_priority )
-								        || ( $rule_priority === $last_priority && ( ! $access_time || $rule_access_time < $access_time ) ) ) {
+								     || ( $rule_priority === $last_priority && ( ! $access_time || $rule_access_time < $access_time ) ) ) {
 
 									$access_time   = $rule_access_time;
 									$last_priority = $rule_priority;

@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_3_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_3_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -1274,7 +1274,10 @@ class WC_Memberships_Rules {
 				$plan = $rule->get_membership_plan();
 
 				if ( $plan && $plan->has_products() ) {
-					$unfiltered_products = $plan->get_product_ids();
+
+					foreach( $plan->get_product_ids() as $unfiltered_product_id ) {
+						$unfiltered_products[] = $unfiltered_product_id;
+					}
 				}
 
 				// mark this plan as processed, we do not need look into it any further, because we already know if it has any products that grant access or not
@@ -1310,9 +1313,12 @@ class WC_Memberships_Rules {
 
 				// store the product as purchasable so it isn't re-checked
 				if ( $is_visible && $product->is_purchasable()  ) {
+
 					$this->purchasable_product_ids[] = $product_id;
-				// otherwise, store is non-purchasable and bail
+
+				// otherwise, store as non-purchasable and bail
 				} else {
+
 					$this->non_purchasable_product_ids[] = $product_id;
 					continue;
 				}

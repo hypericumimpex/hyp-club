@@ -24,21 +24,22 @@
 defined( 'ABSPATH' ) or exit;
 
 /**
- * Membership note email
+ * Membership note email.
  *
- * @type string $email_heading Email heading
- * @type string $membership_note Membership note
- * @type \WC_Memberships_User_Membership $user_membership User Membership
+ * @type string $email_heading email heading
+ * @type string $membership_note membership note
+ * @type \WC_Memberships_User_Membership $user_membership user membership
+ * @type \WC_Memberships_User_Membership_Email $email the email object
  *
- * @version 1.12.0
+ * @version 1.12.4
  * @since 1.0.0
  */
  ?>
 
-<?php do_action( 'woocommerce_email_header', $email_heading ); ?>
+<?php do_action( 'woocommerce_email_header', $email_heading, $email ); ?>
 
 <p><?php esc_html_e( 'Hello, a note has just been added to your membership:', 'woocommerce-memberships' ); ?></p>
 
 <blockquote><?php echo wpautop( wptexturize( $membership_note ) ) ?></blockquote>
 
-<?php do_action( 'woocommerce_email_footer' );
+<?php do_action( 'woocommerce_email_footer', $email );

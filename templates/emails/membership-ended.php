@@ -24,18 +24,19 @@
 defined( 'ABSPATH' ) or exit;
 
 /**
- * Membership ended email
+ * Membership ended email.
  *
- * @type string $email_heading Email heading
- * @type string $email_body Email body
- * @type \WC_Memberships_User_Membership $user_membership User Membership
+ * @type string $email_heading email heading
+ * @type string $email_body email body (may contain HTML)
+ * @type \WC_Memberships_User_Membership $user_membership user membership
+ * @type \WC_Memberships_User_Membership_Email $email the email object
  *
- * @version 1.12.0
+ * @version 1.12.4
  * @since 1.7.0
  */
 
-do_action( 'woocommerce_email_header', $email_heading );
+do_action( 'woocommerce_email_header', $email_heading, $email );
 
 echo wpautop( wptexturize( $email_body ) );
 
-do_action( 'woocommerce_email_footer' );
+do_action( 'woocommerce_email_footer', $email );
