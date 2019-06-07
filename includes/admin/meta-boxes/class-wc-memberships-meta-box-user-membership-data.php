@@ -599,7 +599,7 @@ class WC_Memberships_Meta_Box_User_Membership_Data extends \WC_Memberships_Meta_
 					$end_date = '';
 				}
 
-			} elseif (    'expired' === $user_membership->get_status()
+			} elseif (    ( ( isset( $_POST['post_status'] ) && 'wcm-expired' === $_POST['post_status'] ) || 'expired' === $user_membership->get_status() )
 			           && ( '' === $end_date || strtotime( $end_date ) > current_time( 'timestamp' ) ) ) {
 
 				// if the status was set to expired, but the new date is in the future,

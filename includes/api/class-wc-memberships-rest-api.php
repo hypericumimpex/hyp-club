@@ -40,14 +40,11 @@ class REST_API extends Framework\REST_API {
 	/** @var string[] supported API versions (matches namespaces) */
 	private $supports;
 
-	/** @var \SkyVerge\WooCommerce\Memberships\API\Webhooks instance */
-	private $webhooks;
-
 	/** @var \SkyVerge\WooCommerce\Memberships\API\Controller\Membership_Plans[] instances */
-	private $membership_plans = array();
+	private $membership_plans = [];
 
 	/** @var \SkyVerge\WooCommerce\Memberships\API\Controller\User_Memberships[] instances */
-	private $user_memberships = array();
+	private $user_memberships = [];
 
 
 	/**
@@ -61,17 +58,16 @@ class REST_API extends Framework\REST_API {
 
 		parent::__construct( $plugin );
 
-		if ( Framework\SV_WC_Plugin_Compatibility::is_wc_version_lt( '3.6.0' ) ) {
-			$this->includes();
-		} else {
-			add_action( 'rest_api_init', array( $this, 'includes' ), 5 );
-		}
-
-		$this->webhooks = $this->get_plugin()->load_class( '/includes/api/class-wc-memberships-webhooks.php', '\SkyVerge\WooCommerce\Memberships\API\Webhooks' );
-		$this->supports = array(
+		$this->supports = [
 			'v2',
 			'v3',
-		);
+		];
+
+		if ( Framework\SV_WC_Plugin_Compatibility::is_wc_version_gte( '3.6.0' ) ) {
+			$this->includes();
+		} else {
+			add_action( 'rest_api_init', [ $this, 'includes' ], 5 );
+		}
 	}
 
 
@@ -83,6 +79,14 @@ class REST_API extends Framework\REST_API {
 	 * @since 1.13.0
 	 */
 	public function includes() {
+
+		// ensure that WC REST API base abstracts extended by Memberships are available even while processing hooks
+		if (      Framework\SV_WC_Plugin_Compatibility::is_wc_version_gte( '3.6.0' )
+		     && ! did_action( 'rest_api_init' )
+		     && ! class_exists( 'WC_REST_Posts_Controller', false ) ) {
+
+			WC()->api->rest_api_includes();
+		}
 
 		require_once( $this->get_plugin()->get_plugin_path() . '/includes/api/abstract-wc-memberships-rest-api-controller.php' );
 		require_once( $this->get_plugin()->get_plugin_path() . '/includes/api/abstract-wc-memberships-rest-api-membership-plans.php' );
@@ -153,11 +157,14 @@ class REST_API extends Framework\REST_API {
 	private function get_instance( $which, $version ) {
 
 		$instance  = null;
-		$namespace = null === $version ? array_pop( $this->supports ) : strtolower( $version );
+		$namespace = null === $version ? end( $this->supports ) : strtolower( $version );
 
-		if (    $namespace
-		     && in_array( $namespace, $this->supports, true )
-		     && class_exists( 'WC_REST_Posts_Controller' ) ) {
+		if ( in_array( $namespace, $this->supports, true ) && class_exists( 'WC_REST_Posts_Controller' ) ) {
+
+			// make sure abstract handlers are always available when needed
+			if ( ! class_exists( '\\SkyVerge\\WooCommerce\\Memberships\\API\\Controller' ) ) {
+				$this->includes();
+			}
 
 			if ( 'user_memberships' === $which ) {
 
@@ -212,15 +219,20 @@ class REST_API extends Framework\REST_API {
 
 
 	/**
-	 * Returns the webhooks handler instance.
+	 * Gets the webhooks handler instance.
+	 *
+	 * TODO remove this deprecated method by May 2020 or by version 2.0.0 {FN 2019-05-29}
 	 *
 	 * @since 1.11.0
+	 * @deprecated since 1.13.1
 	 *
 	 * @return \SkyVerge\WooCommerce\Memberships\API\Webhooks
 	 */
 	public function get_webhooks() {
 
-		return $this->webhooks;
+		_deprecated_function( __METHOD__, '1.13.1', 'wc_memberships()->get_webhooks_instance()' );
+
+		return $this->get_plugin()->get_webhooks_instance();
 	}
 
 
@@ -235,7 +247,7 @@ class REST_API extends Framework\REST_API {
 	 */
 	protected function get_system_status_data() {
 
-		$status_data = array();
+		$status_data = [];
 
 		foreach ( System_Status_Report::get_system_status_report_data() as $export_key => $data ) {
 

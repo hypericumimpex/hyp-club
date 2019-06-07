@@ -36,7 +36,7 @@ class WC_Memberships extends Framework\SV_WC_Plugin  {
 
 
 	/** plugin version number */
-	const VERSION = '1.13.0';
+	const VERSION = '1.13.1';
 
 	/** @var \WC_Memberships single instance of this plugin */
 	protected static $instance;
@@ -86,6 +86,9 @@ class WC_Memberships extends Framework\SV_WC_Plugin  {
 	/** @var \SkyVerge\WooCommerce\Memberships\REST_API instance */
 	private $rest_api;
 
+	/** @var \SkyVerge\WooCommerce\Memberships\API\Webhooks instance */
+	private $webhooks;
+
 
 	/**
 	 * Initializes the plugin.
@@ -109,12 +112,14 @@ class WC_Memberships extends Framework\SV_WC_Plugin  {
 
 		add_action( 'init', array( $this, 'init_post_types' ) );
 
-		// initializes the REST API handler
+		// initializes the REST API handler and the Webhooks handler
 		if ( Framework\SV_WC_Plugin_Compatibility::is_wc_version_gte( '3.6.0' ) ) {
-			add_action( 'init',                    array( $this, 'init_rest_api' ) );
+			add_action( 'rest_api_init',           [ $this, 'init_rest_api' ], 5 );
 		} else {
-			add_action( 'before_woocommerce_init', array( $this, 'init_rest_api' ) );
+			add_action( 'before_woocommerce_init', [ $this, 'init_rest_api' ] );
 		}
+
+		add_action( 'before_woocommerce_init', [ $this, 'init_webhooks' ] );
 
 		// add query vars for rewrite endpoints
 		add_action( 'init',                       array( $this, 'add_rewrite_endpoints' ), 0 );
@@ -165,15 +170,26 @@ class WC_Memberships extends Framework\SV_WC_Plugin  {
 	/**
 	 * Initializes the REST API handler.
 	 *
-	 * This is done before init as WooCommerce registers webhooks early.
-	 *
 	 * @internal
 	 *
 	 * @since 1.11.0
 	 */
 	public function init_rest_api() {
 
-		$this->rest_api = $this->get_rest_api_instance();
+		$this->get_rest_api_instance();
+	}
+
+
+	/**
+	 * Initializes the Webhooks handler.
+	 *
+	 * @internal
+	 *
+	 * @since 1.13.1
+	 */
+	public function init_webhooks() {
+
+		$this->get_webhooks_instance();
 	}
 
 
@@ -516,6 +532,23 @@ class WC_Memberships extends Framework\SV_WC_Plugin  {
 		}
 
 		return $this->rest_api;
+	}
+
+
+	/**
+	 * Gets the webhooks handler instance.
+	 *
+	 * @since 1.13.1
+	 *
+	 * @return \SkyVerge\WooCommerce\Memberships\API\Webhooks
+	 */
+	public function get_webhooks_instance() {
+
+		if ( null === $this->webhooks ) {
+			$this->webhooks = $this->load_class( '/includes/api/class-wc-memberships-webhooks.php', '\SkyVerge\WooCommerce\Memberships\API\Webhooks' );
+		}
+
+		return $this->webhooks;
 	}
 
 

@@ -1,5 +1,15 @@
 *** WooCommerce Memberships Changelog ***
 
+2019.06.06 - version 1.13.1
+ * Fix - Ensure that memberships in free trial status can access restricted content when using "Hide completely" restriction mode
+ * Fix - Display the thank you note on new order emails on free virtual orders and orders that skip the processing status
+ * Fix - When an API user is also a plan member and the product prices are discounted for them, ensure that these are numerical strings and not floats in API product responses
+ * Fix - Use the correct version for REST API responses when sending webhook payloads
+ * Fix - Ensure Memberships webhooks are consistently fired in WooCommerce 3.6+
+ * Fix - When an admin pauses or cancels a membership manually from the user membership edit screen, make sure the `wc_memberships_user_membership_paused` `wc_memberships_user_membership_cancelled` action hooks are fired accordingly
+ * Fix - Pass the right argument type to `woocommerce_product_related_posts_force_display` WooCommerce core filter hook for related products handling
+ * Misc - Allow filtering of CSV import and export delimiters to allow for more delimiters other than tab and comma
+
 2019.04.17 - version 1.13.0
  * Feature - Add REST API endpoints support to full CRUD operations for user membership objects, including batches
  * Tweak - Improve the restrictions performance in some installations when "Hide Completely" is the chosen restriction mode

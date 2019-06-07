@@ -2,10 +2,10 @@
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: WooCommerce Memberships 1.13.0\n"
+"Project-Id-Version: WooCommerce Memberships 1.13.1\n"
 "Report-Msgid-Bugs-To: "
 "https://woocommerce.com/my-account/marketplace-ticket-form/\n"
-"POT-Creation-Date: 2019-04-17 08:32:12+00:00\n"
+"POT-Creation-Date: 2019-06-06 04:05:02+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -17,27 +17,27 @@ msgstr ""
 msgid "WooCommerce Memberships"
 msgstr ""
 
-#: class-wc-memberships.php:617
+#: class-wc-memberships.php:650
 msgid "You've created your first membership plan!"
 msgstr ""
 
-#: class-wc-memberships.php:627
+#: class-wc-memberships.php:660
 msgid "You've created your first user membership!"
 msgstr ""
 
-#: class-wc-memberships.php:762 class-wc-memberships.php:840
+#: class-wc-memberships.php:795 class-wc-memberships.php:873
 msgid "User Memberships"
 msgstr ""
 
-#: class-wc-memberships.php:813
+#: class-wc-memberships.php:846
 msgid "Removed User Membership for \"%s\"."
 msgstr ""
 
-#: class-wc-memberships.php:816
+#: class-wc-memberships.php:849
 msgid "User Membership for \"%s\" has been retained."
 msgstr ""
 
-#: class-wc-memberships.php:876
+#: class-wc-memberships.php:909
 #: includes/admin/class-wc-memberships-admin-users.php:141
 #: includes/admin/class-wc-memberships-admin.php:1049
 #: includes/admin/class-wc-memberships-settings.php:44
@@ -47,9 +47,9 @@ msgstr ""
 msgid "Memberships"
 msgstr ""
 
-#: class-wc-memberships.php:900
+#: class-wc-memberships.php:933
 #: includes/admin/class-wc-memberships-admin-user-memberships.php:100
-#: includes/admin/class-wc-memberships-import-export-handler.php:466
+#: includes/admin/class-wc-memberships-import-export-handler.php:463
 #: includes/admin/meta-boxes/views/class-wc-memberships-meta-box-view-content-restriction-rule.php:210
 #: includes/admin/meta-boxes/views/class-wc-memberships-meta-box-view-content-restriction-rules.php:71
 #: includes/admin/meta-boxes/views/class-wc-memberships-meta-box-view-product-restriction-rule.php:207
@@ -61,19 +61,19 @@ msgstr ""
 msgid "Plan"
 msgstr ""
 
-#: class-wc-memberships.php:904
+#: class-wc-memberships.php:937
 msgid "Start Date (UTC)"
 msgstr ""
 
-#: class-wc-memberships.php:911
+#: class-wc-memberships.php:944
 msgid "End Date (UTC)"
 msgstr ""
 
-#: class-wc-memberships.php:918
+#: class-wc-memberships.php:951
 msgid "Related Order"
 msgstr ""
 
-#: class-wc-memberships.php:925
+#: class-wc-memberships.php:958
 msgid "Related Product"
 msgstr ""
 
@@ -288,7 +288,7 @@ msgstr ""
 
 #: includes/admin/class-wc-memberships-admin-user-memberships.php:101
 #: includes/admin/class-wc-memberships-admin-user-memberships.php:257
-#: includes/admin/class-wc-memberships-import-export-handler.php:481
+#: includes/admin/class-wc-memberships-import-export-handler.php:478
 #: includes/frontend/class-wc-memberships-members-area.php:570
 msgid "Status"
 msgstr ""
@@ -549,7 +549,7 @@ msgid ""
 msgstr ""
 
 #: includes/admin/class-wc-memberships-import-export-handler.php:191
-#: includes/admin/class-wc-memberships-import-export-handler.php:459
+#: includes/admin/class-wc-memberships-import-export-handler.php:456
 msgid "Export Members"
 msgstr ""
 
@@ -580,7 +580,7 @@ msgid ""
 msgstr ""
 
 #: includes/admin/class-wc-memberships-import-export-handler.php:334
-#: includes/admin/class-wc-memberships-import-export-handler.php:626
+#: includes/admin/class-wc-memberships-import-export-handler.php:644
 msgid "Choose a file from your computer"
 msgstr ""
 
@@ -685,95 +685,93 @@ msgstr ""
 msgid "Change the delimiter based on your input file format."
 msgstr ""
 
-#: includes/admin/class-wc-memberships-import-export-handler.php:425
-#: includes/admin/class-wc-memberships-import-export-handler.php:541
-msgid "Comma"
-msgstr ""
-
-#: includes/admin/class-wc-memberships-import-export-handler.php:426
-#: includes/admin/class-wc-memberships-import-export-handler.php:542
-msgid "Tab space"
-msgstr ""
-
-#: includes/admin/class-wc-memberships-import-export-handler.php:467
+#: includes/admin/class-wc-memberships-import-export-handler.php:464
 msgid ""
 "Choose which plan(s) to export members from. Leave blank to export members "
 "from every plan."
 msgstr ""
 
-#: includes/admin/class-wc-memberships-import-export-handler.php:474
+#: includes/admin/class-wc-memberships-import-export-handler.php:471
 msgid "Leave blank to export members of any plan."
 msgstr ""
 
-#: includes/admin/class-wc-memberships-import-export-handler.php:482
+#: includes/admin/class-wc-memberships-import-export-handler.php:479
 msgid ""
 "Choose to export user memberships with specific status(es) only. Leave "
 "blank to export user memberships of any status."
 msgstr ""
 
-#: includes/admin/class-wc-memberships-import-export-handler.php:489
+#: includes/admin/class-wc-memberships-import-export-handler.php:486
 msgid "Leave blank to export members with any status."
 msgstr ""
 
-#: includes/admin/class-wc-memberships-import-export-handler.php:496
+#: includes/admin/class-wc-memberships-import-export-handler.php:493
 #: includes/frontend/class-wc-memberships-members-area.php:575
 msgid "Start Date"
 msgstr ""
 
-#: includes/admin/class-wc-memberships-import-export-handler.php:499
+#: includes/admin/class-wc-memberships-import-export-handler.php:496
 #. translators: Placeholder: %s - date format
 msgid "Start date of memberships to include in the exported file, in the format %s."
 msgstr ""
 
-#: includes/admin/class-wc-memberships-import-export-handler.php:500
-#: includes/admin/class-wc-memberships-import-export-handler.php:515
+#: includes/admin/class-wc-memberships-import-export-handler.php:497
+#: includes/admin/class-wc-memberships-import-export-handler.php:512
 msgid ""
 "You can optionally specify a date range, or leave one of the fields blank "
 "for open-ended ranges."
 msgstr ""
 
-#: includes/admin/class-wc-memberships-import-export-handler.php:511
+#: includes/admin/class-wc-memberships-import-export-handler.php:508
 msgid "End Date"
 msgstr ""
 
-#: includes/admin/class-wc-memberships-import-export-handler.php:514
+#: includes/admin/class-wc-memberships-import-export-handler.php:511
 #. translators: Placeholder: %s - date format
 msgid ""
 "Expiration date of memberships to include in the exported file, in the "
 "format %s."
 msgstr ""
 
-#: includes/admin/class-wc-memberships-import-export-handler.php:526
+#: includes/admin/class-wc-memberships-import-export-handler.php:523
 msgid "Meta data"
 msgstr ""
 
-#: includes/admin/class-wc-memberships-import-export-handler.php:528
+#: includes/admin/class-wc-memberships-import-export-handler.php:525
 msgid "Include additional meta data"
 msgstr ""
 
-#: includes/admin/class-wc-memberships-import-export-handler.php:529
+#: includes/admin/class-wc-memberships-import-export-handler.php:526
 msgid ""
 "Add an extra column to the CSV file with all post meta of each membership "
 "in JSON format."
 msgstr ""
 
-#: includes/admin/class-wc-memberships-import-export-handler.php:536
+#: includes/admin/class-wc-memberships-import-export-handler.php:533
 msgid "Separate fields by"
 msgstr ""
 
-#: includes/admin/class-wc-memberships-import-export-handler.php:539
+#: includes/admin/class-wc-memberships-import-export-handler.php:536
 msgid "Change the delimiter based on your desired output format."
 msgstr ""
 
-#: includes/admin/class-wc-memberships-import-export-handler.php:674
+#: includes/admin/class-wc-memberships-import-export-handler.php:574
+msgid "Comma"
+msgstr ""
+
+#: includes/admin/class-wc-memberships-import-export-handler.php:575
+msgid "Tab space"
+msgstr ""
+
+#: includes/admin/class-wc-memberships-import-export-handler.php:692
 msgid "Date Range"
 msgstr ""
 
-#: includes/admin/class-wc-memberships-import-export-handler.php:689
+#: includes/admin/class-wc-memberships-import-export-handler.php:707
 msgid "From:"
 msgstr ""
 
-#: includes/admin/class-wc-memberships-import-export-handler.php:701
+#: includes/admin/class-wc-memberships-import-export-handler.php:719
 msgid "To:"
 msgstr ""
 
@@ -2268,8 +2266,8 @@ msgstr ""
 
 #: includes/admin/meta-boxes/views/class-wc-memberships-meta-box-view-membership-note.php:68
 #: includes/admin/meta-boxes/views/class-wc-memberships-meta-box-view-membership-recent-activity-note.php:84
-#: includes/class-wc-memberships-user-membership.php:1980
-#: includes/class-wc-memberships-user-membership.php:1982
+#: includes/class-wc-memberships-user-membership.php:2011
+#: includes/class-wc-memberships-user-membership.php:2013
 msgid "WooCommerce"
 msgstr ""
 
@@ -3005,7 +3003,7 @@ msgid "Please ensure you have entered valid user information."
 msgstr ""
 
 #: includes/class-wc-memberships-ajax.php:492
-#: includes/class-wc-memberships-user-membership.php:1811
+#: includes/class-wc-memberships-user-membership.php:1842
 msgid "An error occurred."
 msgstr ""
 
@@ -3129,26 +3127,26 @@ msgstr ""
 msgid "Member discount!"
 msgstr ""
 
-#: includes/class-wc-memberships-membership-plan.php:578
+#: includes/class-wc-memberships-membership-plan.php:581
 #: includes/class-wc-memberships-membership-plans.php:255
 #: includes/integrations/subscriptions/class-wc-memberships-integration-subscriptions-admin.php:236
 #. translators: Membership of an unlimited length
 msgid "Unlimited"
 msgstr ""
 
-#: includes/class-wc-memberships-membership-plan.php:586
+#: includes/class-wc-memberships-membership-plan.php:589
 #. translators: Placeholders: %d - number of days
 msgid "%d day"
 msgid_plural "%d days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-wc-memberships-membership-plan.php:1973
+#: includes/class-wc-memberships-membership-plan.php:2005
 #. translators: Placeholders: %1$s - product name, %2$s - order number.
 msgid "Membership access granted from purchasing %1$s (Order %2$s)"
 msgstr ""
 
-#: includes/class-wc-memberships-membership-plan.php:1986
+#: includes/class-wc-memberships-membership-plan.php:2018
 #. translators: Placeholders: %1$s - product name, %2$s - order number.
 msgid "Membership access renewed from purchasing %1$s (Order %2$s)"
 msgstr ""
@@ -3495,45 +3493,45 @@ msgid ""
 "cannot be purchased."
 msgstr ""
 
-#: includes/class-wc-memberships-user-membership.php:1322
+#: includes/class-wc-memberships-user-membership.php:1353
 msgid "Membership paused."
 msgstr ""
 
-#: includes/class-wc-memberships-user-membership.php:1350
+#: includes/class-wc-memberships-user-membership.php:1381
 msgid "Membership cancelled."
 msgstr ""
 
-#: includes/class-wc-memberships-user-membership.php:1394
+#: includes/class-wc-memberships-user-membership.php:1425
 msgid "Membership expired."
 msgstr ""
 
-#: includes/class-wc-memberships-user-membership.php:1434
+#: includes/class-wc-memberships-user-membership.php:1465
 msgid "Membership resumed."
 msgstr ""
 
-#: includes/class-wc-memberships-user-membership.php:1438
+#: includes/class-wc-memberships-user-membership.php:1469
 msgid "Membership activated."
 msgstr ""
 
-#: includes/class-wc-memberships-user-membership.php:1814
+#: includes/class-wc-memberships-user-membership.php:1845
 msgid "Please select a valid user to transfer the membership to."
 msgstr ""
 
-#: includes/class-wc-memberships-user-membership.php:1816
+#: includes/class-wc-memberships-user-membership.php:1847
 msgid "This membership cannot be transferred to this user."
 msgstr ""
 
-#: includes/class-wc-memberships-user-membership.php:1818
+#: includes/class-wc-memberships-user-membership.php:1849
 msgid ""
 "The user you have selected to transfer the membership to is the same user "
 "owning the membership to be transferred. Please select a different user."
 msgstr ""
 
-#: includes/class-wc-memberships-user-membership.php:1820
+#: includes/class-wc-memberships-user-membership.php:1851
 msgid "The selected user to transfer the membership to is already a member."
 msgstr ""
 
-#: includes/class-wc-memberships-user-membership.php:1865
+#: includes/class-wc-memberships-user-membership.php:1896
 #. translators: Membership transferred from user %1$s to user %2$s
 msgid "Membership transferred from %1$s to %2$s."
 msgstr ""
@@ -3602,7 +3600,7 @@ msgid_plural "Cancelled <span class=\"count\">(%s)</span>"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-wc-memberships-user-memberships.php:1016
+#: includes/class-wc-memberships-user-memberships.php:1018
 #. translators: Placeholders: Membership status changed from status A (%1$s) to
 #. status B (%2$s)
 msgid "Membership status changed from %1$s to %2$s."
@@ -4317,7 +4315,7 @@ msgid ""
 "subscription products."
 msgstr ""
 
-#: includes/integrations/subscriptions/class-wc-memberships-integration-subscriptions-free-trial.php:71
+#: includes/integrations/subscriptions/class-wc-memberships-integration-subscriptions-free-trial.php:69
 msgid "Free Trial <span class=\"count\">(%s)</span>"
 msgid_plural "Free Trial <span class=\"count\">(%s)</span>"
 msgstr[0] ""
@@ -4875,7 +4873,7 @@ msgctxt "Membership Status"
 msgid "Cancelled"
 msgstr ""
 
-#: includes/integrations/subscriptions/class-wc-memberships-integration-subscriptions-free-trial.php:70
+#: includes/integrations/subscriptions/class-wc-memberships-integration-subscriptions-free-trial.php:68
 msgctxt "Membership Status"
 msgid "Free Trial"
 msgstr ""

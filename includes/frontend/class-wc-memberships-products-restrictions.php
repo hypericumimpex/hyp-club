@@ -960,7 +960,7 @@ class WC_Memberships_Products_Restrictions {
 						}
 
 						// WooCommerce core handling
-						if ( empty( $tax_query ) && ! apply_filters( 'woocommerce_product_related_posts_force_display', false, $related_product_ids ) ) {
+						if ( empty( $tax_query ) && ! apply_filters( 'woocommerce_product_related_posts_force_display', false, $parent_product_id ) ) {
 							$related_product_ids = array();
 						// query results will come filtered for the current member access rights
 						} else {

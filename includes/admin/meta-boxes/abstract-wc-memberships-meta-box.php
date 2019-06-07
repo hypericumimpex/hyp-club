@@ -677,7 +677,7 @@ abstract class WC_Memberships_Meta_Box {
 			return;
 		}
 
-		// check the user's permissions.
+		// check the user's permissions
 		if ( isset( $_POST['post_type'] ) && 'page' === $_POST['post_type'] ) {
 			if ( ! current_user_can( 'edit_page', $post_id ) ) {
 				return;

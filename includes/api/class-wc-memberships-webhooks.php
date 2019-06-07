@@ -36,7 +36,7 @@ class Webhooks {
 
 
 	/** @var array keeps track of webhook sent to avoid duplicates */
-	private $sent_webhooks = array();
+	private $sent_webhooks = [];
 
 
 	/**
@@ -49,36 +49,36 @@ class Webhooks {
 		if ( Framework\SV_WC_Plugin_Compatibility::is_wc_version_gte_3_0() ) {
 
 			// add webhook resources and events
-			add_filter( 'woocommerce_valid_webhook_resources', array( $this, 'add_resources' ) );
-			add_filter( 'woocommerce_valid_webhook_events',    array( $this, 'add_events' ) );
+			add_filter( 'woocommerce_valid_webhook_resources', [ $this, 'add_resources' ] );
+			add_filter( 'woocommerce_valid_webhook_events',    [ $this, 'add_events' ] );
 			// add webhook topics and their hooks
-			add_filter( 'woocommerce_webhook_topics',      array( $this, 'add_topics' ) );
-			add_filter( 'woocommerce_webhook_topic_hooks', array( $this, 'add_topic_hooks' ), 10, 2 );
+			add_filter( 'woocommerce_webhook_topics',      [ $this, 'add_topics' ] );
+			add_filter( 'woocommerce_webhook_topic_hooks', [ $this, 'add_topic_hooks' ], 10, 2 );
 
 			// create webhook payloads
-			add_filter( 'woocommerce_webhook_payload', array( $this, 'create_payload' ), 1, 4 );
+			add_filter( 'woocommerce_webhook_payload', [ $this, 'create_payload' ], 1, 4 );
 
 			// check whether webhook should be delivered
-			add_filter( 'woocommerce_webhook_should_deliver', array( $this, 'handle_webhook_delivery' ), 100, 3 );
+			add_filter( 'woocommerce_webhook_should_deliver', [ $this, 'handle_webhook_delivery' ], 100, 3 );
 
 			// when creating a membership plan or user membership from admin, look for posts going from auto draft to publish status
-			add_action( 'transition_post_status', array( $this, 'handle_new_object_published' ), 10, 3 );
+			add_action( 'transition_post_status', [ $this, 'handle_new_object_published' ], 10, 3 );
 
 			// add actions for user membership webhooks consumption
-			add_action( 'wc_memberships_user_membership_created',        array( $this, 'add_user_membership_created_webhook_action' ), 10, 2 );
-			add_action( 'wc_memberships_user_membership_saved',          array( $this, 'add_user_membership_created_webhook_action' ), 10, 2 );
-			add_action( 'wc_memberships_user_membership_created',        array( $this, 'add_user_membership_updated_webhook_action' ), 10, 2 );
-			add_action( 'wc_memberships_user_membership_status_changed', array( $this, 'add_user_membership_updated_webhook_action' ), 10, 2 );
-			add_action( 'wc_memberships_user_membership_saved',          array( $this, 'add_user_membership_updated_webhook_action' ), 10, 2 );
-			add_action( 'wc_memberships_user_membership_transferred',    array( $this, 'add_user_membership_transferred_webhook_action' ) );
-			add_action( 'wc_memberships_user_membership_deleted',        array( $this, 'add_user_membership_deleted_webhook_action' ) );
+			add_action( 'wc_memberships_user_membership_created',        [ $this, 'add_user_membership_created_webhook_action' ], 999, 2 );
+			add_action( 'wc_memberships_user_membership_saved',          [ $this, 'add_user_membership_created_webhook_action' ], 999, 2 );
+			add_action( 'wc_memberships_user_membership_created',        [ $this, 'add_user_membership_updated_webhook_action' ], 999, 2 );
+			add_action( 'wc_memberships_user_membership_status_changed', [ $this, 'add_user_membership_updated_webhook_action' ], 999, 2 );
+			add_action( 'wc_memberships_user_membership_saved',          [ $this, 'add_user_membership_updated_webhook_action' ], 999, 2 );
+			add_action( 'wc_memberships_user_membership_transferred',    [ $this, 'add_user_membership_transferred_webhook_action' ], 999 );
+			add_action( 'wc_memberships_user_membership_deleted',        [ $this, 'add_user_membership_deleted_webhook_action' ], 999 );
 
 			// add actions for membership plan webhooks consumption
-			add_action( 'wp_insert_post', array( $this, 'add_membership_plan_created_webhook_action' ), 10, 3 );
-			add_action( 'wp_insert_post', array( $this, 'add_membership_plan_updated_webhook_action' ), 10, 3 );
-			add_action( 'post_updated',   array( $this, 'add_membership_plan_updated_webhook_action' ), 10, 2 );
-			add_action( 'trashed_post',   array( $this, 'add_membership_plan_deleted_webhook_action' ) );
-			add_action( 'untrashed_post', array( $this, 'add_membership_plan_restored_webhook_action' ) );
+			add_action( 'wp_insert_post', [ $this, 'add_membership_plan_created_webhook_action' ], 999, 3 );
+			add_action( 'wp_insert_post', [ $this, 'add_membership_plan_updated_webhook_action' ], 999, 3 );
+			add_action( 'post_updated',   [ $this, 'add_membership_plan_updated_webhook_action' ], 999, 2 );
+			add_action( 'trashed_post',   [ $this, 'add_membership_plan_deleted_webhook_action' ], 999 );
+			add_action( 'untrashed_post', [ $this, 'add_membership_plan_restored_webhook_action' ], 999 );
 		}
 	}
 
@@ -114,13 +114,13 @@ class Webhooks {
 	 */
 	public function add_events( array $events ) {
 
-		$memberships_events = array(
+		$memberships_events = [
 			'created',
 			'updated',
 			'transferred',
 			'deleted',
 			'restored',
-		);
+		];
 
 		foreach ( $memberships_events as $membership_event ) {
 			$events[] = $membership_event;
@@ -170,19 +170,19 @@ class Webhooks {
 			}
 		}
 
-		$user_memberships_topics = array(
+		$user_memberships_topics = [
 			'user_membership.created'     => __( 'User Membership Created',     'woocommerce-memberships' ),
 			'user_membership.updated'     => __( 'User Membership Updated',     'woocommerce-memberships' ),
 			'user_membership.transferred' => __( 'User Membership Transferred', 'woocommerce-memberships' ),
 			'user_membership.deleted'     => __( 'User Membership Deleted',     'woocommerce-memberships' ),
-		);
+		];
 
-		$membership_plan_topics = array(
+		$membership_plan_topics = [
 			'membership_plan.created'     => __( 'Membership Plan Created',     'woocommerce-memberships' ),
 			'membership_plan.updated'     => __( 'Membership Plan Updated',     'woocommerce-memberships' ),
 			'membership_plan.deleted'     => __( 'Membership Plan Deleted',     'woocommerce-memberships' ),
 			'membership_plan.restored'    => __( 'Membership Plan Restored',    'woocommerce-memberships' ),
-		);
+		];
 
 		return array_merge( $topics, $user_memberships_topics, $membership_plan_topics );
 	}
@@ -213,20 +213,20 @@ class Webhooks {
 			 * @param array $topic_hooks associative array of topics
 			 * @param \WC_Webhook $webhook webhook object
 			 */
-			$topic_hooks = (array) apply_filters( 'wc_memberships_user_membership_webhook_topic_hooks', array(
-				'user_membership.created'     => array(
+			$topic_hooks = (array) apply_filters( 'wc_memberships_user_membership_webhook_topic_hooks', [
+				'user_membership.created'     => [
 					'wc_memberships_webhook_user_membership_created',
-				),
-				'user_membership.updated'     => array(
+				],
+				'user_membership.updated'     => [
 					'wc_memberships_webhook_user_membership_updated',
-				),
-				'user_membership.transferred' => array(
+				],
+				'user_membership.transferred' => [
 					'wc_memberships_webhook_user_membership_transferred',
-				),
-				'user_membership.deleted'     => array(
+				],
+				'user_membership.deleted'     => [
 					'wc_memberships_webhook_user_membership_deleted',
-				),
-			), $webhook );
+				],
+			], $webhook );
 
 		} elseif ( 'membership_plan' === $resource ) {
 
@@ -238,20 +238,20 @@ class Webhooks {
 			 * @param array $topic_hooks associative array of topics
 			 * @param \WC_Webhook $webhook webhook object
 			 */
-			$topic_hooks = (array) apply_filters( 'wc_memberships_membership_plan_webhook_topic_hooks', array(
-				'membership_plan.created'     => array(
+			$topic_hooks = (array) apply_filters( 'wc_memberships_membership_plan_webhook_topic_hooks', [
+				'membership_plan.created'  => [
 					'wc_memberships_webhook_membership_plan_created',
-				),
-				'membership_plan.updated'     => array(
+				],
+				'membership_plan.updated'  => [
 					'wc_memberships_webhook_membership_plan_updated',
-				),
-				'membership_plan.deleted' => array(
+				],
+				'membership_plan.deleted'  => [
 					'wc_memberships_webhook_membership_plan_deleted',
-				),
-				'membership_plan.restored'     => array(
+				],
+				'membership_plan.restored' => [
 					'wc_memberships_webhook_membership_plan_restored',
-				),
-			), $webhook );
+				],
+			], $webhook );
 		}
 
 		return $topic_hooks;
@@ -295,16 +295,16 @@ class Webhooks {
 
 			// get API version to use
 			try {
-				$webhook = new \WC_Webhook( $webhook_id );
-				$version = $this->parse_api_version( $webhook->get_api_version() );
+				$webhook     = new \WC_Webhook( $webhook_id );
+				$api_version = $this->parse_api_version( $webhook->get_api_version() );
 			} catch ( \Exception $e ) {
-				$version = null;
+				$api_version = null;
 			}
 
-			if ( null !== $version ) {
+			if ( null !== $api_version ) {
 
-				$membership_plans_api = wc_memberships()->get_rest_api_instance()->get_membership_plans( $version );
-				$user_memberships_api = wc_memberships()->get_rest_api_instance()->get_user_memberships( $version );
+				$membership_plans_api = wc_memberships()->get_rest_api_instance()->get_membership_plans( $api_version );
+				$user_memberships_api = wc_memberships()->get_rest_api_instance()->get_user_memberships( $api_version );
 
 				if ( $user_memberships_api && 'user_membership' === $resource ) {
 					$payload = $this->get_payload( $user_memberships_api, $resource_id, $webhook_id );
@@ -330,7 +330,7 @@ class Webhooks {
 	 */
 	private function get_payload( $api, $resource_id, $webhook_id ) {
 
-		$payload = array();
+		$payload = [];
 
 		try {
 
@@ -340,7 +340,7 @@ class Webhooks {
 			wp_set_current_user( $webhook->get_user_id() );
 
 			if ( 'deleted' === $webhook->get_event() || ! get_post( $resource_id ) ) {
-				$payload = array( 'id' => (int) $resource_id );
+				$payload = [ 'id' => (int) $resource_id ];
 			} elseif ( $api instanceof Controller\User_Memberships ) {
 				$payload = $api->get_formatted_item_data( wc_memberships_get_user_membership( $resource_id ) );
 			} elseif ( $api instanceof Controller\Membership_Plans ) {
@@ -373,7 +373,7 @@ class Webhooks {
 
 		$resource = $webhook->get_resource();
 
-		if ( in_array( $resource, array( 'user_membership', 'membership_plan' ), true ) ) {
+		if ( in_array( $resource, [ 'user_membership', 'membership_plan' ], true ) ) {
 
 			if ( 'deleted' === $webhook->get_event() ) {
 
@@ -384,6 +384,7 @@ class Webhooks {
 				$api_version = $this->parse_api_version( $webhook->get_api_version() );
 
 				if ( null !== $api_version ) {
+
 					if ( 'user_membership' === $resource ) {
 						$user_memberships_api = wc_memberships()->get_rest_api_instance()->get_user_memberships( $api_version );
 						$user_membership      = wc_memberships_get_user_membership( $resource_id );
@@ -420,12 +421,12 @@ class Webhooks {
 	 */
 	public function handle_new_object_published( $new_status, $old_status, $post_object ) {
 
-		if ( in_array( $old_status, array( 'auto-draft', 'new' ), true ) ) {
+		if ( in_array( $old_status, [ 'auto-draft', 'new' ], true ) ) {
 
 			$post_type = get_post_type( $post_object );
 
 			if ( 'wc_user_membership' === $post_type ) {
-				$this->add_user_membership_created_webhook_action( null, array( 'user_membership_id' => $post_object->ID ) );
+				$this->add_user_membership_created_webhook_action( null, [ 'user_membership_id' => $post_object->ID ] );
 			} elseif ( 'wc_membership_plan' === $post_type && 'publish' === $new_status ) {
 				$this->add_membership_plan_created_webhook_action( $post_object->ID, $post_object, false );
 			}
@@ -452,16 +453,16 @@ class Webhooks {
 
 		if ( isset( $args['user_membership_id'] ) && is_numeric( $args['user_membership_id'] ) ) {
 
-			$current_action  = current_action();
+			$webhook_key     = 'wc_memberships_webhook_user_membership_created';
 			$user_membership = wc_memberships_get_user_membership( $args['user_membership_id'] );
 
-			if ( ! isset( $this->sent_webhooks[ $current_action ] ) ) {
-				$this->sent_webhooks[ $current_action ] = array();
+			if ( ! isset( $this->sent_webhooks[ $webhook_key ] ) ) {
+				$this->sent_webhooks[ $webhook_key ] = [];
 			}
 
 			if (      $user_membership
-			     && ! in_array( $user_membership->get_status(), array( 'draft', 'auto-draft' ), true )
-			     && ! in_array( $user_membership->get_id(), $this->sent_webhooks[ $current_action ], true ) ) {
+			     && ! in_array( $user_membership->get_status(), [ 'draft', 'auto-draft' ], true )
+			     && ! in_array( $user_membership->get_id(), $this->sent_webhooks[ $webhook_key ], true ) ) {
 
 				/**
 				 * Fires when a user membership is created, for webhook use.
@@ -472,7 +473,7 @@ class Webhooks {
 				 */
 				do_action( 'wc_memberships_webhook_user_membership_created', $user_membership->get_id() );
 
-				$this->sent_webhooks[ $current_action ][] = $user_membership->get_id();
+				$this->sent_webhooks[ $webhook_key ][] = $user_membership->get_id();
 			}
 		}
 	}
@@ -497,18 +498,20 @@ class Webhooks {
 
 		$current_action     = current_action();
 		$user_membership_id = 0;
+		$webhook_key        = 'wc_memberships_webhook_user_membership_updated';
 
 		if ( 'wc_memberships_user_membership_saved' === $current_action && is_array( $args ) && isset( $args['user_membership_id'] ) && is_numeric( $args['user_membership_id'] ) && ( $user_membership = wc_memberships_get_user_membership( $args['user_membership_id'] ) ) ) {
 			$user_membership_id = $user_membership->get_id();
 		} elseif ( 'wc_memberships_user_membership_status_changed' === $current_action && $object instanceof \WC_Memberships_User_Membership ) {
 			$user_membership_id = $object->get_id();
+			$webhook_key        = 'wc_memberships_webhook_user_membership_updated_status_changed';
 		}
 
-		if ( ! isset( $this->sent_webhooks[ $current_action ] ) ) {
-			$this->sent_webhooks[ $current_action ] = array();
+		if ( ! isset( $this->sent_webhooks[ $webhook_key ] ) ) {
+			$this->sent_webhooks[ $webhook_key ] = [];
 		}
 
-		if ( $user_membership_id > 0 && ! in_array( $user_membership_id, $this->sent_webhooks[ $current_action ], true ) ) {
+		if ( $user_membership_id > 0 && ! in_array( $user_membership_id, $this->sent_webhooks[ $webhook_key ], true ) ) {
 
 			/**
 			 * Fires when a user membership is updated, for webhook use.
@@ -519,7 +522,7 @@ class Webhooks {
 			 */
 			do_action( 'wc_memberships_webhook_user_membership_updated', $user_membership_id );
 
-			$this->sent_webhooks[ $current_action ][] = $user_membership_id;
+			$this->sent_webhooks[ $webhook_key ][] = $user_membership_id;
 		}
 	}
 
@@ -537,14 +540,14 @@ class Webhooks {
 
 		if ( $user_membership instanceof \WC_Memberships_User_Membership ) {
 
-			$current_action     = current_action();
+			$webhook_key        = 'wc_memberships_webhook_user_membership_transferred';
 			$user_membership_id = $user_membership->get_id();
 
-			if ( ! isset( $this->sent_webhooks[ $current_action ] ) ) {
-				$this->sent_webhooks[ $current_action ] = array();
+			if ( ! isset( $this->sent_webhooks[ $webhook_key ] ) ) {
+				$this->sent_webhooks[ $webhook_key ] = [];
 			}
 
-			if ( ! in_array( $user_membership_id, $this->sent_webhooks[ $current_action ], true ) ) {
+			if ( ! in_array( $user_membership_id, $this->sent_webhooks[ $webhook_key ], true ) ) {
 
 				/**
 				 * Fires when a user membership is transferred, for webhook use.
@@ -555,7 +558,7 @@ class Webhooks {
 				 */
 				do_action( 'wc_memberships_webhook_user_membership_transferred', $user_membership_id );
 
-				$this->sent_webhooks[ $current_action ][] = $user_membership_id;
+				$this->sent_webhooks[ $webhook_key ][] = $user_membership_id;
 			}
 		}
 	}
@@ -574,13 +577,13 @@ class Webhooks {
 
 		if ( $user_membership_id = $user_membership->get_id() ) {
 
-			$current_action = current_action();
+			$webhook_key = 'wc_memberships_webhook_user_membership_deleted';
 
-			if ( ! isset( $this->sent_webhooks[ $current_action ] ) ) {
-				$this->sent_webhooks[ $current_action ] = array();
+			if ( ! isset( $this->sent_webhooks[ $webhook_key ] ) ) {
+				$this->sent_webhooks[ $webhook_key ] = [];
 			}
 
-			if ( ! in_array( (int) $user_membership_id, $this->sent_webhooks[ $current_action ], true ) ) {
+			if ( ! in_array( (int) $user_membership_id, $this->sent_webhooks[ $webhook_key ], true ) ) {
 
 				/**
 				 * Fires when a user membership is deleted, for webhook use.
@@ -591,7 +594,7 @@ class Webhooks {
 				 */
 				do_action( 'wc_memberships_webhook_user_membership_deleted', (int) $user_membership_id );
 
-				$this->sent_webhooks[ $current_action ][] = (int) $user_membership_id;
+				$this->sent_webhooks[ $webhook_key ][] = (int) $user_membership_id;
 			}
 		}
 	}
@@ -610,18 +613,18 @@ class Webhooks {
 	 */
 	public function add_membership_plan_created_webhook_action( $post_id, $post, $updated ) {
 
-		if ( 'wc_membership_plan' === get_post_type( $post ) && ! in_array( $post->post_status, array( 'new', 'auto-draft' ), true ) ) {
+		if ( 'wc_membership_plan' === get_post_type( $post ) && ! in_array( $post->post_status, [ 'new', 'auto-draft' ], true ) ) {
 
 			if ( ! $updated ) {
 
 				$membership_plan_id = (int) $post_id;
-				$current_action     = current_action();
+				$webhook_key        = 'wc_memberships_webhook_membership_plan_created';
 
-				if ( ! isset( $this->sent_webhooks[ $current_action ] ) ) {
-					$this->sent_webhooks[ $current_action ] = array();
+				if ( ! isset( $this->sent_webhooks[ $webhook_key ] ) ) {
+					$this->sent_webhooks[ $webhook_key ] = [];
 				}
 
-				if ( ! in_array( $membership_plan_id, $this->sent_webhooks[ $current_action ], true ) ) {
+				if ( ! in_array( $membership_plan_id, $this->sent_webhooks[ $webhook_key ], true ) ) {
 
 					/**
 					 * Fires when a membership plan is created, for webhook use.
@@ -632,7 +635,7 @@ class Webhooks {
 					 */
 					do_action( 'wc_memberships_webhook_membership_plan_created', $membership_plan_id );
 
-					$this->sent_webhooks[ $current_action ][] = $membership_plan_id;
+					$this->sent_webhooks[ $webhook_key ][] = $membership_plan_id;
 				}
 
 			} else {
@@ -655,16 +658,16 @@ class Webhooks {
 	 */
 	public function add_membership_plan_updated_webhook_action( $post_id, $post ) {
 
-		if ( 'wc_membership_plan' === get_post_type( $post ) && ! in_array( $post->post_status, array( 'new', 'auto-draft', 'trash' ), true ) ) {
+		if ( 'wc_membership_plan' === get_post_type( $post ) && ! in_array( $post->post_status, [ 'new', 'auto-draft', 'trash' ], true ) ) {
 
 			$membership_plan_id = (int) $post_id;
-			$current_action     = current_action();
+			$webhook_key        = 'wc_memberships_webhook_membership_plan_updated';
 
-			if ( ! isset( $this->sent_webhooks[ $current_action ] ) ) {
-				$this->sent_webhooks[ $current_action ] = array();
+			if ( ! isset( $this->sent_webhooks[ $webhook_key ] ) ) {
+				$this->sent_webhooks[ $webhook_key ] = [];
 			}
 
-			if ( ! in_array( $membership_plan_id, $this->sent_webhooks[ $current_action ], true ) ) {
+			if ( ! in_array( $membership_plan_id, $this->sent_webhooks[ $webhook_key ], true ) ) {
 
 				/**
 				 * Fires when a membership plan is updated, for webhook use.
@@ -675,7 +678,7 @@ class Webhooks {
 				 */
 				do_action( 'wc_memberships_webhook_membership_plan_updated', $membership_plan_id );
 
-				$this->sent_webhooks[ $current_action ][] = $membership_plan_id;
+				$this->sent_webhooks[ $webhook_key ][] = $membership_plan_id;
 			}
 		}
 	}
@@ -695,13 +698,13 @@ class Webhooks {
 		if ( 'wc_membership_plan' === get_post_type( $post_id ) ) {
 
 			$membership_plan_id = (int) $post_id;
-			$current_action     = current_action();
+			$webhook_key        = 'wc_memberships_webhook_membership_plan_deleted';
 
-			if ( ! isset( $this->sent_webhooks[ $current_action ] ) ) {
-				$this->sent_webhooks[ $current_action ] = array();
+			if ( ! isset( $this->sent_webhooks[ $webhook_key ] ) ) {
+				$this->sent_webhooks[ $webhook_key ] = [];
 			}
 
-			if ( ! in_array( $membership_plan_id, $this->sent_webhooks[ $current_action ], true ) ) {
+			if ( ! in_array( $membership_plan_id, $this->sent_webhooks[ $webhook_key ], true ) ) {
 
 				/**
 				 * Fires when a membership plan is deleted (trashed), for webhook use.
@@ -712,7 +715,7 @@ class Webhooks {
 				 */
 				do_action( 'wc_memberships_webhook_membership_plan_deleted', $membership_plan_id );
 
-				$this->sent_webhooks[ $current_action ][] = $membership_plan_id;
+				$this->sent_webhooks[ $webhook_key ][] = $membership_plan_id;
 			}
 		}
 	}
@@ -732,13 +735,13 @@ class Webhooks {
 		if ( 'wc_membership_plan' === get_post_type( $post_id ) ) {
 
 			$membership_plan_id = (int) $post_id;
-			$current_action     = current_action();
+			$webhook_key        = 'wc_memberships_webhook_membership_plan_restored';
 
-			if ( ! isset( $this->sent_webhooks[ $current_action ] ) ) {
-				$this->sent_webhooks[ $current_action ] = array();
+			if ( ! isset( $this->sent_webhooks[ $webhook_key ] ) ) {
+				$this->sent_webhooks[ $webhook_key ] = [];
 			}
 
-			if ( ! in_array( $membership_plan_id, $this->sent_webhooks[ $current_action ], true ) ) {
+			if ( ! in_array( $membership_plan_id, $this->sent_webhooks[ $webhook_key ], true ) ) {
 
 				/**
 				 * Fires when a membership plan is restored from the trash, for webhook use.
@@ -749,7 +752,7 @@ class Webhooks {
 				 */
 				do_action( 'wc_memberships_webhook_membership_plan_restored', $membership_plan_id );
 
-				$this->sent_webhooks[ $current_action ][] = $membership_plan_id;
+				$this->sent_webhooks[ $webhook_key ][] = $membership_plan_id;
 			}
 		}
 	}

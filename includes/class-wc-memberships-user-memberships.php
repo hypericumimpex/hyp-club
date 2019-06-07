@@ -896,11 +896,12 @@ class WC_Memberships_User_Memberships {
 		 *
 		 * @param string[] $statuses array of statuses
 		 */
-		return (array) apply_filters( 'wc_memberships_active_access_membership_statuses', array(
+		return array_unique( (array) apply_filters( 'wc_memberships_active_access_membership_statuses', [
 			'active',
 			'complimentary',
+			'free_trial',
 			'pending',
-		) );
+		] ) );
 	}
 
 
@@ -918,14 +919,14 @@ class WC_Memberships_User_Memberships {
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param array $statuses array of statuses valid for renewal
+		 * @param string[] $statuses array of statuses valid for renewal
 		 */
-		return (array) apply_filters( 'wc_memberships_valid_membership_statuses_for_renewal', array(
+		return array_unique( (array) apply_filters( 'wc_memberships_valid_membership_statuses_for_renewal', [
 			'active',
 			'cancelled',
 			'expired',
 			'paused',
-		) );
+		] ) );
 	}
 
 
@@ -945,10 +946,11 @@ class WC_Memberships_User_Memberships {
 		 *
 		 * @param string[] $statuses array of statuses valid for cancellation
 		 */
-		return (array) apply_filters( 'wc_memberships_valid_membership_statuses_for_cancel', array(
+		return array_unique( (array) apply_filters( 'wc_memberships_valid_membership_statuses_for_cancel', [
 			'active',
 			'delayed',
-		) );
+			'free_trial',
+		] ) );
 	}
 
 
@@ -1025,7 +1027,7 @@ class WC_Memberships_User_Memberships {
 
 				case 'cancelled':
 
-					$user_membership->set_cancelled_date( current_time( 'mysql', true ) );
+					$user_membership->cancel_membership();
 					$user_membership->unschedule_expiration_events();
 
 				break;
@@ -1046,13 +1048,11 @@ class WC_Memberships_User_Memberships {
 
 				case 'paused':
 
-					$now = current_time( 'mysql', true );
-
-					$user_membership->set_paused_date( $now );
+					$user_membership->pause_membership();
 
 					// delayed memberships should disregard intervals at all
 					if ( 'delayed' !== $old_status ) {
-						$user_membership->set_paused_interval( 'start', strtotime( $now ) );
+						$user_membership->set_paused_interval( 'start', current_time( 'mysql', true ) );
 					}
 
 					// restore expiration events if the Membership was cancelled

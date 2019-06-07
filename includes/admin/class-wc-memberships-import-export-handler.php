@@ -414,17 +414,14 @@ class WC_Memberships_Admin_Import_Export_Handler {
 				),
 			),
 
-			// entries are separated by comma or tab?
+			// entries are separated by comma or tab? (filterable)
 			array(
 				'id'       => 'wc_memberships_members_csv_import_fields_delimiter',
 				'title'    => __( 'Fields are separated by', 'woocommerce-memberships' ),
 				'type'     => 'select',
 				'class'    => 'wc-enhanced-select',
 				'desc_tip' => __( 'Change the delimiter based on your input file format.', 'woocommerce-memberships' ),
-				'options'  => array(
-					'comma' => __( 'Comma', 'woocommerce-memberships' ),
-					'tab'   => __( 'Tab space', 'woocommerce-memberships' ),
-				),
+				'options'  => $this->get_csv_delimiter_options( 'import' ),
 			),
 
 			// end of section
@@ -530,17 +527,14 @@ class WC_Memberships_Admin_Import_Export_Handler {
 				'default'  => 'no'
 			),
 
-			// entries are going to be separated by comma or tab?
+			// entries are going to be separated by comma or tab? (filterable)
 			array(
 				'id'       => 'wc_memberships_members_csv_export_fields_delimiter',
 				'name'     => __( 'Separate fields by', 'woocommerce-memberships' ),
 				'type'     => 'select',
 				'class'    => 'wc-enhanced-select',
 				'desc_tip' => __( 'Change the delimiter based on your desired output format.', 'woocommerce-memberships' ),
-				'options'  => array(
-					'comma' => __( 'Comma', 'woocommerce-memberships' ),
-					'tab'   => __( 'Tab space', 'woocommerce-memberships' ),
-				),
+				'options'  => $this->get_csv_delimiter_options( 'export' ),
 			),
 
 			// section end
@@ -556,6 +550,30 @@ class WC_Memberships_Admin_Import_Export_Handler {
 		 * @para array $options associative array
 		 */
 		return (array) apply_filters( 'wc_memberships_csv_export_user_memberships_options', $options );
+	}
+
+
+	/**
+	 * Gets the options for the CSV delimiter field.
+	 *
+	 * @since 1.13.1
+	 *
+	 * @param string $action import or export
+	 * @return array associative array of identifiers and labels
+	 */
+	private function get_csv_delimiter_options( $action ) {
+
+		/**
+		 * Filters admin options for the CSV delimiter used in import and export jobs.
+		 *
+		 * @since 1.13.1
+		 *
+		 * @param array $options associative array of identifiers and labels
+		 */
+		return (array) apply_filters( "wc_memberships_csv_{$action}_delimiter_options", array(
+			'comma' => __( 'Comma', 'woocommerce-memberships' ),
+			'tab'   => __( 'Tab space', 'woocommerce-memberships' ),
+		) );
 	}
 
 

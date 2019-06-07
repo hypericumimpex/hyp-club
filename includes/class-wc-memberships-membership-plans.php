@@ -55,8 +55,8 @@ class WC_Memberships_Membership_Plans {
 		add_action( 'user_register', array( $this, 'grant_access_to_free_membership' ), 10, 2 );
 
 		// trigger memberships access upon products purchases
-		add_action( 'woocommerce_order_status_completed',  array( $this, 'grant_access_to_membership_from_order' ), 11 );
-		add_action( 'woocommerce_order_status_processing', array( $this, 'grant_access_to_membership_from_order' ), 11 );
+		add_action( 'woocommerce_order_status_completed',  [ $this, 'grant_access_to_membership_from_order' ], 9 );
+		add_action( 'woocommerce_order_status_processing', [ $this, 'grant_access_to_membership_from_order' ], 9 );
 	}
 
 

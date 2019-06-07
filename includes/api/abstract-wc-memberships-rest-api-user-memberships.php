@@ -1051,7 +1051,7 @@ class User_Memberships extends Controller {
 	 *
 	 * @internal
 	 *
-	 * @since 1.13.0-dev,1
+	 * @since 1.13.0
 	 *
 	 * @param string $method HTTP method of the request
 	 * @return array associative array of arguments

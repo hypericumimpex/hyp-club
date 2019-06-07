@@ -434,15 +434,18 @@ class WC_Memberships_Membership_Plan {
 	 * @since 1.7.0
 	 *
 	 * @param string $access_length an access period defined as "2 weeks", "5 months", "1 year" etc.
+	 * @return bool success
 	 */
 	public function set_access_length( $access_length ) {
 
+		$success       = false;
 		$access_length = (string) wc_memberships_parse_period_length( $access_length );
 
 		if ( ! empty( $access_length ) ) {
-
-			update_post_meta( $this->id, $this->access_length_meta, $access_length );
+			$success = (bool) update_post_meta( $this->id, $this->access_length_meta, $access_length );
 		}
+
+		return $success;
 	}
 
 
@@ -614,10 +617,12 @@ class WC_Memberships_Membership_Plan {
 	 * @see \WC_Memberships_Membership_Plan::delete_access_end_date()
 	 *
 	 * @since 1.7.0
+	 *
+	 * @return bool success
 	 */
 	public function delete_access_length() {
 
-		delete_post_meta( $this->id, $this->access_length_meta );
+		return (bool) delete_post_meta( $this->id, $this->access_length_meta );
 	}
 
 
@@ -644,7 +649,7 @@ class WC_Memberships_Membership_Plan {
 
 
 	/**
-	 * Checks the plan's access length type
+	 * Checks the plan's access length type.
 	 *
 	 * @since 1.7.0
 	 *
@@ -652,25 +657,32 @@ class WC_Memberships_Membership_Plan {
 	 * @return bool
 	 */
 	public function is_access_length_type( $type ) {
+
 		return is_array( $type ) ? in_array( $this->get_access_length_type(), $type, true ) : $type === $this->get_access_length_type();
 	}
 
 
 	/**
-	 * Sets the plan access start date
+	 * Sets the plan access start date.
 	 *
-	 * Note: this only affects memberships of fixed length
+	 * Note: this only affects memberships of fixed length.
 	 *
 	 * @since 1.7.0
 	 *
 	 * @param string|null $date optional, defaults to now, otherwise a date in mysql format
+	 * @return bool success
 	 */
 	public function set_access_start_date( $date = null ) {
 
+		$success = false;
+		$date    = null === $date ? (string) date( 'Y-m-d H:i:s', current_time( 'timestamp', true ) ) : $date;
+
 		if ( $start_date = wc_memberships_parse_date( $date, 'mysql' ) ) {
 
-			update_post_meta( $this->id, $this->access_start_date_meta, $start_date );
+			$success = (bool) update_post_meta( $this->id, $this->access_start_date_meta, $start_date );
 		}
+
+		return $success;
 	}
 
 
@@ -757,10 +769,12 @@ class WC_Memberships_Membership_Plan {
 	 * Note: this only affects membership plans of fixed length.
 	 *
 	 * @since 1.7.0
+	 *
+	 * @return bool success
 	 */
 	public function delete_access_start_date() {
 
-		delete_post_meta( $this->id, $this->access_start_date_meta );
+		return (bool) delete_post_meta( $this->id, $this->access_start_date_meta );
 	}
 
 
@@ -772,13 +786,18 @@ class WC_Memberships_Membership_Plan {
 	 * @since 1.7.0
 	 *
 	 * @param string $date a date in MySQL format
+	 * @return bool
 	 */
 	public function set_access_end_date( $date ) {
 
+		$success = false;
+
 		if ( $end_date = wc_memberships_parse_date( $date, 'mysql' ) ) {
 
-			update_post_meta( $this->id, $this->access_end_date_meta, $end_date );
+			$success = (bool) update_post_meta( $this->id, $this->access_end_date_meta, $end_date );
 		}
+
+		return $success;
 	}
 
 
@@ -839,10 +858,12 @@ class WC_Memberships_Membership_Plan {
 	 * Deletes the access end date meta.
 	 *
 	 * @since 1.7.0
+	 *
+	 * @return bool success
 	 */
 	public function delete_access_end_date() {
 
-		delete_post_meta( $this->id, $this->access_end_date_meta );
+		return (bool) delete_post_meta( $this->id, $this->access_end_date_meta );
 	}
 
 
@@ -926,6 +947,7 @@ class WC_Memberships_Membership_Plan {
 	 * @since 1.7.0
 	 *
 	 * @param null|string|array $sections array of section keys or single section key (string).
+	 * @return bool success
 	 */
 	public function set_members_area_sections( $sections = null ) {
 
@@ -941,12 +963,12 @@ class WC_Memberships_Membership_Plan {
 			$sections = array();
 		}
 
-		update_post_meta( $this->id, $this->members_area_sections_meta, $sections );
+		return (bool) update_post_meta( $this->id, $this->members_area_sections_meta, $sections );
 	}
 
 
 	/**
-	 * Returns members area sections for this plan.
+	 * Gets members area sections for this plan.
 	 *
 	 * @see wc_memberships_get_members_area_sections()
 	 *
@@ -966,10 +988,12 @@ class WC_Memberships_Membership_Plan {
 	 * Removes the members area sections for this plan.
 	 *
 	 * @since 1.7.4
+	 *
+	 * @return bool success
 	 */
 	public function delete_members_area_sections() {
 
-		delete_post_meta( $this->id, $this->members_area_sections_meta );
+		return (bool) delete_post_meta( $this->id, $this->members_area_sections_meta );
 	}
 
 
@@ -980,9 +1004,11 @@ class WC_Memberships_Membership_Plan {
 	 *
 	 * @param array|string $email email to update, or associative array with all emails to update
 	 * @param string $content content to set, default empty string
+	 * @return bool success
 	 */
 	public function set_email_content( $email, $content = '' ) {
 
+		$success       = false;
 		$emails        = wc_memberships()->get_emails_instance()->get_email_classes();
 		$email_content = get_post_meta( $this->id, $this->email_content_meta, true );
 		$email_content = ! is_array( $email_content ) ? array() : $email_content;
@@ -1003,7 +1029,7 @@ class WC_Memberships_Membership_Plan {
 				}
 			}
 
-			update_post_meta( $this->id, $this->email_content_meta, $email_content );
+			$success = (bool) update_post_meta( $this->id, $this->email_content_meta, $email_content );
 
 		} elseif ( is_string( $email ) ) {
 
@@ -1018,14 +1044,16 @@ class WC_Memberships_Membership_Plan {
 
 				$email_content[ $email ] = $new_content;
 
-				update_post_meta( $this->id, $this->email_content_meta, $email_content );
+				$success = (bool) update_post_meta( $this->id, $this->email_content_meta, $email_content );
 			}
 		}
+
+		return $success;
 	}
 
 
 	/**
-	 * Returns the plan's email content.
+	 * Gets the plan's email content.
 	 *
 	 * @since 1.7.0
 	 *
@@ -1060,19 +1088,21 @@ class WC_Memberships_Membership_Plan {
 	 * @since 1.7.0
 	 *
 	 * @param string $email email to delete content for, 'all' or 'any' for all
+	 * @return bool success
 	 */
 	public function delete_email_content( $email = '' ) {
 
-		$emails = wc_memberships()->get_emails_instance()->get_email_classes();
+		$success = [];
+		$emails  = wc_memberships()->get_emails_instance()->get_email_classes();
 
 		if ( in_array( $email, array( 'all', 'any' ), true ) ) {
 
-			delete_post_meta( $this->id, $this->email_content_meta );
+			$success[] = (bool) delete_post_meta( $this->id, $this->email_content_meta );
 
 		} else {
 
 			// ensure the email class is capitalized
-			$email  = implode( '_', array_map( 'ucfirst', explode( '_', $email ) ) );
+			$email = implode( '_', array_map( 'ucfirst', explode( '_', $email ) ) );
 
 			if ( isset( $emails[ $email ] ) ) {
 
@@ -1082,10 +1112,12 @@ class WC_Memberships_Membership_Plan {
 
 					unset( $email_content[ $email ] );
 
-					update_post_meta( $this->id, $this->email_content_meta, $email_content );
+					$success[] = (bool) update_post_meta( $this->id, $this->email_content_meta, $email_content );
 				}
 			}
 		}
+
+		return ! empty( $success ) && ! in_array( false, $success, true );
 	}
 
 
@@ -1970,7 +2002,7 @@ class WC_Memberships_Membership_Plan {
 
 			$user_membership->add_note(
 				/* translators: Placeholders: %1$s - product name, %2$s - order number. */
-				sprintf(__('Membership access granted from purchasing %1$s (Order %2$s)'),
+				sprintf( __( 'Membership access granted from purchasing %1$s (Order %2$s)', 'woocommerce-memberships' ),
 					$product->get_title(),
 					$order->get_order_number()
 				)
@@ -1983,7 +2015,7 @@ class WC_Memberships_Membership_Plan {
 
 				$user_membership->add_note(
 					/* translators: Placeholders: %1$s - product name, %2$s - order number. */
-					sprintf(__('Membership access renewed from purchasing %1$s (Order %2$s)'),
+					sprintf( __( 'Membership access renewed from purchasing %1$s (Order %2$s)', 'woocommerce-memberships' ),
 						$product->get_title(),
 						$order->get_order_number()
 					)

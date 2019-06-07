@@ -733,7 +733,7 @@ class WC_Memberships_AJAX {
 				wp_send_json_success( (array)  $export_handler->create_job( array(
 					'user_membership_ids' => empty( $_POST['user_membership_ids'] ) ? $export_handler->get_user_memberships_ids_for_export( $export_args ) : $_POST['user_membership_ids'],
 					'include_meta_data'   => isset( $export_args['include_meta'] ) && 'yes' === $export_args['include_meta'],
-					'fields_delimiter'    => isset( $export_args['fields_delimiter'] ) && 'tab' === $export_args['fields_delimiter'] ? 'tab' : 'comma',
+					'fields_delimiter'    => ! empty( $export_args['fields_delimiter'] ) ? $export_args['fields_delimiter'] : 'comma',
 				) ) );
 
 			} catch ( Framework\SV_WC_Plugin_Exception $e ) {

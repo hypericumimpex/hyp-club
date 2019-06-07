@@ -125,7 +125,7 @@ class WC_Memberships_CSV_Import_User_Memberships extends \WC_Memberships_Job_Han
 		 * @since 1.6.0
 		 *
 		 * @param string $enclosure default double quote `"`
-		 * @param \WC_Memberships_CSV_Import_User_Memberships_Background_Job $import_instance instance of the export class
+		 * @param \WC_Memberships_CSV_Import_User_Memberships_Background_Job $import_instance instance of the import class
 		 * @param \stdClass $job import job
 		 */
 		return (string) apply_filters( 'wc_memberships_csv_import_enclosure', parent::get_csv_enclosure(), $this, $job );

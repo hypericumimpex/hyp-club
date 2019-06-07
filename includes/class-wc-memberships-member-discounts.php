@@ -1337,7 +1337,14 @@ class WC_Memberships_Member_Discounts {
 		 * @param int $member_id the ID of the logged in member (it's zero for non logged in users)
 		 * @param \WC_Product $product the product object for the price being discounted
 		 */
-		return apply_filters( 'wc_memberships_get_discounted_price', $price, $base_price, $product_id, $member_id, $product );
+		$price = apply_filters( 'wc_memberships_get_discounted_price', $price, $base_price, $product_id, $member_id, $product );
+
+		// special handling for REST responses, ensure the price is consistent with a numerical string type
+		if ( defined( 'REST_REQUEST' ) && REST_REQUEST && is_numeric( $price ) ) {
+			$price = (string) $price;
+		}
+
+		return $price;
 	}
 
 
@@ -1444,6 +1451,11 @@ class WC_Memberships_Member_Discounts {
 			if ( $original_price <= $discounted_price ) {
 				$original_price = $discounted_price;
 			}
+		}
+
+		// special handling for REST responses, ensure the price is consistent with a numerical string type
+		if ( defined( 'REST_REQUEST' ) && REST_REQUEST && is_numeric( $original_price ) ) {
+			$original_price = (string) $original_price;
 		}
 
 		return $original_price;

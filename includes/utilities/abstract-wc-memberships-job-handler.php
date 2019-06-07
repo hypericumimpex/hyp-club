@@ -463,7 +463,16 @@ abstract class WC_Memberships_Job_Handler extends Framework\SV_WP_Background_Job
 			break;
 		}
 
-		return $delimiter;
+		/**
+		 * Filters the CSV delimiter.
+		 *
+		 * @since 1.13.1
+		 *
+		 * @param string $delimiter the CSV delimiter as a character
+		 * @param null|string|\stdClass $item the original context identifier
+		 * @param \WC_Memberships_Job_Handler|\WC_Memberships_CSV_Import_User_Memberships|\WC_Memberships_CSV_Export_User_Memberships $handler the job handler instance
+		 */
+		return (string) apply_filters( 'wc_memberships_csv_delimiter', $delimiter, $item, $this );
 	}
 
 
