@@ -36,7 +36,7 @@ class WC_Memberships extends Framework\SV_WC_Plugin  {
 
 
 	/** plugin version number */
-	const VERSION = '1.13.1';
+	const VERSION = '1.13.2';
 
 	/** @var \WC_Memberships single instance of this plugin */
 	protected static $instance;

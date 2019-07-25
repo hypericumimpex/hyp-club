@@ -53,6 +53,10 @@ class WC_Memberships_CSV_Export_User_Memberships extends \WC_Memberships_Job_Han
 		// delete export files on failure or job deletion
 		add_action( "{$this->identifier}_job_failed",  array( $this, 'delete_export_file' ) );
 		add_action( "{$this->identifier}_job_deleted", array( $this, 'delete_export_file' ) );
+
+		if ( isset( $_GET['download_exported_csv_file'], $_GET['job_id'], $_GET['job_name'] ) ) {
+			add_action( 'init', [ $this, 'download_exported_file' ] );
+		}
 	}
 
 
@@ -382,6 +386,17 @@ class WC_Memberships_CSV_Export_User_Memberships extends \WC_Memberships_Job_Han
 
 			$job = $this->update_job_results( $job, 'html' );
 			$job = $this->complete_job( $job );
+
+			$download_url = wp_nonce_url( admin_url(), 'download-export' );
+
+			// return the download url for the exported file
+			$download_url = add_query_arg( [
+				'download_exported_csv_file' => 1,
+				'job_name'                   => $job->name,
+				'job_id'                     => $job->id,
+			], $download_url );
+
+			$job->download_url = $download_url;
 		}
 
 		return $job;
@@ -869,7 +884,49 @@ class WC_Memberships_CSV_Export_User_Memberships extends \WC_Memberships_Job_Han
 	 */
 	public function delete_export_file( $job ) {
 
-		return parent::delete_attached_file( $job );
+		return $this->delete_attached_file( $job );
+	}
+
+
+	/**
+	 * Downloads an exported file.
+	 *
+	 * @internal
+	 *
+	 * @since 1.13.2
+	 */
+	public function download_exported_file() {
+
+		check_admin_referer( 'download-export' );
+
+		if ( ! current_user_can( 'manage_woocommerce_user_memberships' ) ) {
+			wp_die( __( 'You do not have the proper permissions to download this file.', 'woocommerce-memberships' ) );
+		}
+
+		$job_name = wc_clean( $_GET['job_name'] );
+		$job_id   = wc_clean( $_GET['job_id'] );
+		$job      = wc_memberships()->get_utilities_instance()->get_job_object( $job_name, $job_id );
+
+		if ( ! $job ) {
+
+			// die with an error message if the download fails
+			wp_die( __( 'Export job not found', 'woocommerce-memberships' ), '', [ 'response' => 404 ] );
+		}
+
+		$filename = $job->file_name;
+
+		header( 'Content-type: text/csv' );
+		header( 'Content-Description: File Transfer' );
+		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+		header( 'Expires: 0' );
+		header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
+		header( 'Pragma: public' );
+
+		// stream the file
+		$fp = fopen( $job->file_path, 'rb' );
+		fpassthru( $fp );
+
+		exit();
 	}
 
 

@@ -591,7 +591,7 @@ class WC_Memberships_Meta_Box_User_Membership_Data extends \WC_Memberships_Meta_
 						$user_membership->update_status( 'expired' );
 					}
 
-				} elseif ( in_array( $user_membership->get_status(), array( 'active', 'free_trial', 'complimentary' ), true ) ) {
+				} elseif ( $user_membership->has_status( [ 'active', 'free_trial', 'complimentary' ] ) ) {
 
 					// if the end date has not changed compared to previous,
 					// but status has been changed to one of the active statuses,
@@ -599,7 +599,7 @@ class WC_Memberships_Meta_Box_User_Membership_Data extends \WC_Memberships_Meta_
 					$end_date = '';
 				}
 
-			} elseif (    ( ( isset( $_POST['post_status'] ) && 'wcm-expired' === $_POST['post_status'] ) || 'expired' === $user_membership->get_status() )
+			} elseif (    ( ( isset( $_POST['post_status'] ) && 'wcm-expired' === $_POST['post_status'] ) || $user_membership->has_status( 'expired' ) )
 			           && ( '' === $end_date || strtotime( $end_date ) > current_time( 'timestamp' ) ) ) {
 
 				// if the status was set to expired, but the new date is in the future,

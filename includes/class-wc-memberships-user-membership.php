@@ -346,10 +346,12 @@ class WC_Memberships_User_Membership {
 
 		$success = (bool) update_post_meta( $this->id, $this->start_date_meta, $start_date );
 
-		if ( 'delayed' !== $this->get_status() && strtotime( 'today', strtotime( $start_date ) ) > current_time( 'timestamp', true ) ) {
+		if ( ! $this->has_status( 'delayed' ) && strtotime( 'today', strtotime( $start_date ) ) > current_time( 'timestamp', true ) ) {
 
 			$this->update_status( 'delayed' );
 		}
+
+		$this->schedule_activation_events();
 
 		return $success;
 	}
@@ -834,6 +836,57 @@ class WC_Memberships_User_Membership {
 
 
 	/**
+	 * Unschedules activation events.
+	 *
+	 * @since 1.13.2
+	 */
+	public function unschedule_activation_events() {
+
+		$hook_args = [ 'user_membership_id' => $this->id ];
+
+		// set a post meta to use as a lock to ensure all events are unscheduled before scheduling new ones
+		if ( ! get_post_meta( $this->id, $this->locked_meta, true ) ) {
+			add_post_meta( $this->id, $this->locked_meta, true, true );
+		}
+
+		// unschedule any previously scheduled activation hooks
+		if ( (bool) as_next_scheduled_action( 'wc_memberships_activate_delayed_user_membership', $hook_args, 'woocommerce-memberships'  ) ) {
+			as_unschedule_action( 'wc_memberships_activate_delayed_user_membership', $hook_args, 'woocommerce-memberships' );
+		}
+
+		// remove the lock
+		delete_post_meta( $this->id, $this->locked_meta );
+	}
+
+
+	/**
+	 * Schedules activation events.
+	 *
+	 * @see \WC_Memberships_User_Membership::set_start_date()
+	 * @see \WC_Memberships_User_Memberships::activate_delayed_user_memberships()
+	 *
+	 * @since 1.13.2
+	 */
+	public function schedule_activation_events() {
+
+		$hook_args = [ 'user_membership_id' => $this->id ];
+
+		$this->unschedule_activation_events();
+
+		// avoid race conditions by introducing a recursion if a lock is found
+		if ( get_post_meta( $this->id, $this->locked_meta, true ) ) {
+			$this->schedule_activation_events();
+			return;
+		}
+
+		if ( $this->has_status( 'delayed' ) ) {
+
+			as_schedule_single_action( $this->get_start_date( 'timestamp' ), 'wc_memberships_activate_delayed_user_membership', $hook_args, 'woocommerce-memberships' );
+		}
+	}
+
+
+	/**
 	 * Unschedules expiration events.
 	 *
 	 * @since 1.7.0
@@ -1139,7 +1192,7 @@ class WC_Memberships_User_Membership {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string|array $status single status or array of statuses
+	 * @param string|string[] $status single status or array of statuses
 	 * @return bool
 	 */
 	public function has_status( $status ) {
@@ -1209,7 +1262,8 @@ class WC_Memberships_User_Membership {
 	 * @return bool
 	 */
 	public function is_cancelled() {
-		return 'cancelled' === $this->get_status();
+
+		return $this->has_status( 'cancelled' );
 	}
 
 
@@ -1221,7 +1275,8 @@ class WC_Memberships_User_Membership {
 	 * @return bool
 	 */
 	public function is_expired() {
-		return 'expired' === $this->get_status();
+
+		return $this->has_status( 'expired' );
 	}
 
 
@@ -1233,7 +1288,8 @@ class WC_Memberships_User_Membership {
 	 * @return bool
 	 */
 	public function is_paused() {
-		return 'paused' === $this->get_status();
+
+		return $this->has_status( 'paused' );
 	}
 
 
@@ -1248,7 +1304,7 @@ class WC_Memberships_User_Membership {
 
 		$is_delayed = false;
 
-		if ( 'delayed' === $this->get_status() ) {
+		if ( $this->has_status( 'delayed' ) ) {
 
 			// always perform a check until start date is in the past...
 			if ( $this->get_start_date( 'timestamp' ) <= current_time( 'timestamp', true ) ) {
@@ -1508,7 +1564,7 @@ class WC_Memberships_User_Membership {
 	public function can_be_cancelled() {
 
 		// check if membership has eligible status for cancellation
-		$can_be_cancelled = in_array( $this->get_status(), wc_memberships()->get_user_memberships_instance()->get_valid_user_membership_statuses_for_cancellation(), true );
+		$can_be_cancelled = $this->has_status( wc_memberships()->get_user_memberships_instance()->get_valid_user_membership_statuses_for_cancellation() );
 
 		/**
 		 * Whether a user membership can be cancelled.
@@ -1636,7 +1692,7 @@ class WC_Memberships_User_Membership {
 
 		// check first if the status allows renewal
 		$membership_plan = $this->plan instanceof \WC_Memberships_Membership_Plan ? $this->plan : $this->get_plan();
-		$can_be_renewed  = $membership_plan && in_array( $this->get_status(), wc_memberships()->get_user_memberships_instance()->get_valid_user_membership_statuses_for_renewal(), true );
+		$can_be_renewed  = $membership_plan && $this->has_status( wc_memberships()->get_user_memberships_instance()->get_valid_user_membership_statuses_for_renewal() );
 
 		if ( $can_be_renewed ) {
 

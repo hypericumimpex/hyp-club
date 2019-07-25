@@ -1212,6 +1212,22 @@ class WC_Memberships_Member_Discounts {
 
 
 	/**
+	 * Formats the price according to decimals used in store.
+	 *
+	 * @since 1.13.2
+	 *
+	 * @param string|float|int $price a price as a number (without currency symbols or thousands separator)
+	 * @return float price as a number trimmed to the decimals used in shop
+	 */
+	private function format_price_decimals( $price ) {
+
+		$price = ! is_numeric( $price ) ? 0 : $price;
+
+		return (float) number_format( (float) max( 0, (float) $price ), wc_get_price_decimals(), '.', '' );
+	}
+
+
+	/**
 	 * Returns the rounding precision based on the currency decimals.
 	 *
 	 * Uses @const WC_DISCOUNT_ROUNDING_MODE as fallback (normally 2).
@@ -1224,17 +1240,14 @@ class WC_Memberships_Member_Discounts {
 
 		if ( null === $this->rounding_precision ) {
 
-			$currency_decimals    = get_option( 'woocommerce_price_num_decimals', null );
-			$woocommerce_rounding = defined( 'WC_DISCOUNT_ROUNDING_MODE' ) ? WC_DISCOUNT_ROUNDING_MODE : 2;
-
 			/**
 			 * Filters the rounding precision used to round down discounted product prices.
 			 *
 			 * @since 1.9.5
 			 *
-			 * @param int $rounding_precision by default uses the number of currency decimals set in the store configuration
+			 * @param int $rounding_precision by default uses the same rounding precision as WooCommerce core
 			 */
-			$this->rounding_precision = (int) apply_filters( 'wc_memberships_discount_rounding_precision', $currency_decimals ? $currency_decimals : $woocommerce_rounding );
+			$this->rounding_precision = (int) apply_filters( 'wc_memberships_discount_rounding_precision', wc_get_rounding_precision() );
 		}
 
 		return $this->rounding_precision;
@@ -1339,9 +1352,14 @@ class WC_Memberships_Member_Discounts {
 		 */
 		$price = apply_filters( 'wc_memberships_get_discounted_price', $price, $base_price, $product_id, $member_id, $product );
 
-		// special handling for REST responses, ensure the price is consistent with a numerical string type
-		if ( defined( 'REST_REQUEST' ) && REST_REQUEST && is_numeric( $price ) ) {
-			$price = (string) $price;
+		if ( is_numeric( $price ) ) {
+
+			$price = $this->format_price_decimals( $price );
+
+			// special handling for REST responses, ensure the price is consistent with a numerical string type
+			if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+				$price = (string) $price;
+			}
 		}
 
 		return $price;
@@ -1452,6 +1470,8 @@ class WC_Memberships_Member_Discounts {
 				$original_price = $discounted_price;
 			}
 		}
+
+		$original_price = ! $original_price ?: $this->format_price_decimals( $original_price );
 
 		// special handling for REST responses, ensure the price is consistent with a numerical string type
 		if ( defined( 'REST_REQUEST' ) && REST_REQUEST && is_numeric( $original_price ) ) {

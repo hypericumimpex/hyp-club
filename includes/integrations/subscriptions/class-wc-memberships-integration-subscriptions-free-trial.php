@@ -91,7 +91,7 @@ class WC_Memberships_Integration_Subscriptions_Free_Trial {
 
 		$user_membership = wc_memberships_get_user_membership( $user_membership_id );
 
-		if ( $user_membership && 'free_trial' !== $user_membership->get_status() ) {
+		if ( $user_membership && ! $user_membership->has_status( 'free_trial' ) ) {
 			unset( $statuses['wcm-free_trial'] );
 		}
 

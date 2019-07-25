@@ -182,6 +182,7 @@ class WC_Memberships_CSV_Import_User_Memberships extends \WC_Memberships_Job_Han
 			'notify_new_users'           => false,
 			'fields_delimiter'           => 'comma',
 			'timezone'                   => wc_timezone_string(),
+			'cli'                        => false,
 			'total'                      => 0,
 			'results'                    => (object) array(
 				'memberships_created' => 0,
@@ -234,14 +235,28 @@ class WC_Memberships_CSV_Import_User_Memberships extends \WC_Memberships_Job_Han
 
 		// cannot create the imports directory
 		if ( ! wp_mkdir_p( $imports_dir ) ) {
-			throw  new Framework\SV_WC_Plugin_Exception( $write_error_message );
+			throw new Framework\SV_WC_Plugin_Exception( $write_error_message );
 		}
 
-		// cannot move file to imports directory
-		if ( ! @move_uploaded_file( $attrs['file']['tmp_name'], $imported_path ) ) {
-			throw new Framework\SV_WC_Plugin_Exception( $write_error_message );
+		// when importing memberships from the CLI, we use the file path provided directly from the CLI user instead of creating a temporary file from a form upload
+		if ( defined( 'WP_CLI' ) && WP_CLI && ! empty( $attrs['file']['tmp_name'] ) ) {
+
+			$file_name     = $attrs['file']['name'];
+			$imported_path = untrailingslashit( str_replace( $file_name, '', $attrs['file']['tmp_name'] ) );
+
+			$attrs['cli']       = true;
+			$attrs['file_name'] = $file_name;
+			$attrs['file_path'] = $imported_path . '/' . $file_name;
+
+		// when importing from a form upload, create a temporary file in the designated WordPress import path
 		} else {
-			$attrs['file_path'] = $imported_path;
+
+			// cannot move file to imports directory
+			if ( ! @move_uploaded_file( $attrs['file']['tmp_name'], $imported_path ) ) {
+				throw new Framework\SV_WC_Plugin_Exception( $write_error_message );
+			} else {
+				$attrs['file_path'] = $imported_path;
+			}
 		}
 
 		$this->handle_file_encoding( $file_name );
@@ -249,7 +264,7 @@ class WC_Memberships_CSV_Import_User_Memberships extends \WC_Memberships_Job_Han
 		$file_handle = @fopen( $attrs['file_path'], 'r' );
 
 		// this shouldn't happen by this point, yet throw an error in case
-		if ( false === $file_handle || ! is_writable( $attrs['file_path'] ) ) {
+		if ( false === $file_handle || ( ! ( defined( 'WP_CLI' ) && WP_CLI ) && ! is_writable( $attrs['file_path'] ) ) ) {
 			throw new Framework\SV_WC_Plugin_Exception( $write_error_message );
 		}
 
@@ -897,7 +912,7 @@ class WC_Memberships_CSV_Import_User_Memberships extends \WC_Memberships_Job_Han
 			if ( is_numeric( $expiry_date ) && $expiry_date - 60 <= current_time( 'timestamp', true ) && ! $user_membership->is_expired() && ! $user_membership->is_cancelled() ) {
 				$user_membership->expire_membership();
 			// sanity check for memberships created with a start date in the future
-			} elseif ( 'delayed' !== $user_membership->get_status()  && $user_membership->get_start_date( 'timestamp' ) > current_time( 'timestamp', true ) ) {
+			} elseif ( ! $user_membership->has_status( 'delayed' )  && $user_membership->get_start_date( 'timestamp' ) > current_time( 'timestamp', true ) ) {
 				$user_membership->update_status( 'delayed' );
 			}
 		}
@@ -1112,7 +1127,18 @@ class WC_Memberships_CSV_Import_User_Memberships extends \WC_Memberships_Job_Han
 	 */
 	public function delete_import_file( $job ) {
 
-		$success = parent::delete_attached_file( $job );
+		if ( is_object( $job ) ) {
+			$job_data = (array) $job;
+		} else {
+			$job_data = [];
+		}
+
+		// do not actually delete the original file if importing via WP CLI, only log message
+		if ( isset( $job_data['cli'] ) && true === $job_data['cli'] ) {
+			$success = true;
+		} else {
+			$success = $this->delete_attached_file( $job );
+		}
 
 		switch ( current_action() ) {
 			case "{$this->identifier}_job_failed" :
@@ -1128,10 +1154,7 @@ class WC_Memberships_CSV_Import_User_Memberships extends \WC_Memberships_Job_Han
 		}
 
 		wc_memberships()->log( $log_message );
-
-		if ( null !== $job && is_object( $job ) ) {
-			wc_memberships()->log( print_r( (array) $job, true ) );
-		}
+		wc_memberships()->log( print_r( $job_data, true ) );
 
 		return $success;
 	}

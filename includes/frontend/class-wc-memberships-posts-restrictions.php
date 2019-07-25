@@ -634,7 +634,7 @@ class WC_Memberships_Posts_Restrictions {
 					LEFT JOIN $wpdb->posts ON $wpdb->posts.ID = $wpdb->term_relationships.object_id
 					LEFT JOIN $wpdb->term_taxonomy ON $wpdb->term_relationships.term_taxonomy_id = $wpdb->term_taxonomy.term_taxonomy_id
 					WHERE CASE $case END
-					AND $wpdb->term_relationships.term_taxonomy_id IN ($taxonomy_terms)
+					AND term_id IN ($taxonomy_terms)
 				", $term_ids );
 
 				$all_taxonomy_post_types = $this->get_post_types_for_taxonomies( $taxonomies );
@@ -911,7 +911,8 @@ class WC_Memberships_Posts_Restrictions {
 
 				$subquery = $wpdb->prepare( "
 					SELECT object_id FROM $wpdb->term_relationships
-					WHERE term_taxonomy_id IN ($placeholder)
+					LEFT JOIN $wpdb->term_taxonomy ON $wpdb->term_relationships.term_taxonomy_id = $wpdb->term_taxonomy.term_taxonomy_id
+					WHERE term_id IN ($placeholder)
 				", $term_ids );
 
 				$clause   = " AND $wpdb->posts.ID NOT IN ( " . $subquery . " ) ";

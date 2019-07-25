@@ -1,5 +1,16 @@
 *** WooCommerce Memberships Changelog ***
 
+2019.07.18 - version 1.13.2
+ * Tweak - Consider a subscription-tied membership renewable regardless of its status if it has an expiry date and early renewal is allowed
+ * Tweak - Allow sending ending soon emails for memberships that are linked to a subscription if the latter can be renewed early
+ * Tweak - Create index.html and .htaccess files in exports folder
+ * Tweak - Import user memberships from a local CSV file from the command line via WP CLI with the new `wc user_membership import` command
+ * Fix - Ensure that custom input fields added to import/export screens pass job params that could be correctly used in customizations
+ * Fix - Use the same rounding precision for discounts as WooCommerce core as defined in `wc_get_rounding_precision()`
+ * Fix - Fix post restrictions when granting access to taxonomy terms in some circumstances
+ * Fix - Force LearnDash to query posts when loading course steps
+ * Misc - Move activation of delayed memberships from WP Cron event to Action Scheduler task
+
 2019.06.06 - version 1.13.1
  * Fix - Ensure that memberships in free trial status can access restricted content when using "Hide completely" restriction mode
  * Fix - Display the thank you note on new order emails on free virtual orders and orders that skip the processing status

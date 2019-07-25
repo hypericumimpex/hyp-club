@@ -163,7 +163,7 @@ class WC_Memberships_Integration_Subscriptions_Utilities_Activation_Background_J
 				if ( ! $integration->has_subscription_same_status( $subscription, $user_membership ) ) {
 
 					// special handling for paused memberships which might be put on free trial
-					if ( 'active' === $subscription_status && 'paused' === $user_membership->get_status() ) {
+					if ( 'active' === $subscription_status && $user_membership->has_status( 'paused' ) ) {
 
 						// get trial end timestamp
 						$trial_end = $integration->get_subscription_event_time( $subscription, 'trial_end' );

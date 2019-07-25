@@ -40,7 +40,29 @@ class Learndash {
 	 */
 	public function __construct() {
 
-		add_filter( 'learndash_content', array( $this, 'learndash_restricted_content' ), 1, 2 );
+		add_filter( 'learndash_content', [ $this, 'learndash_restricted_content' ], 1, 2 );
+		add_filter( 'get_post_metadata', [ $this, 'get_post_metadata' ], 10, 4 );
+	}
+
+
+	/**
+	 * Forces LearnDash to query posts when retrieving course steps (lessons).
+	 *
+	 * @internal
+	 *
+	 * @see get_metadata()
+	 *
+	 * @since 1.13.2
+	 *
+	 * @param null|array|string $value the value get_metadata() should return - a single metadata value, or an array of values
+	 * @param int $post_id post ID
+	 * @param string $meta_key meta key
+	 * @param bool $single whether to return only the first value of the specified $meta_key
+	 * @return array|null|string the metadata value
+	 */
+	public function get_post_metadata( $value, $post_id, $meta_key, $single ) {
+
+		return 'ld_course_steps_dirty' === $meta_key ?: $value;
 	}
 
 

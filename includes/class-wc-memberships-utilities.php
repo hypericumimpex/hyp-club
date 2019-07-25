@@ -60,10 +60,10 @@ class WC_Memberships_Utilities {
 		// load abstracts
 		require_once( $plugin->get_plugin_path() . '/includes/utilities/abstract-wc-memberships-job-handler.php' );
 		// load handlers
-		$this->grant_retroactive_access            = $plugin->load_class( '/includes/utilities/class-wc-memberships-grant-retroactive-access.php',           'WC_Memberships_Grant_Retroactive_Access' );
-		$this->user_memberships_import             = $plugin->load_class( '/includes/utilities/class-wc-memberships-csv-import-user-memberships.php',        'WC_Memberships_CSV_Import_User_Memberships' );
-		$this->user_memberships_export             = $plugin->load_class( '/includes/utilities/class-wc-memberships-csv-export-user-memberships.php',        'WC_Memberships_CSV_Export_User_Memberships' );
-		$this->user_memberships_reschedule_events  = $plugin->load_class( '/includes/utilities/class-wc-memberships-user-memberships-reschedule-events.php', 'WC_Memberships_User_Memberships_Reschedule_Events' );
+		$this->grant_retroactive_access           = $plugin->load_class( '/includes/utilities/class-wc-memberships-grant-retroactive-access.php', 'WC_Memberships_Grant_Retroactive_Access' );
+		$this->user_memberships_import            = $plugin->load_class( '/includes/utilities/class-wc-memberships-csv-import-user-memberships.php', 'WC_Memberships_CSV_Import_User_Memberships' );
+		$this->user_memberships_export            = $plugin->load_class( '/includes/utilities/class-wc-memberships-csv-export-user-memberships.php', 'WC_Memberships_CSV_Export_User_Memberships' );
+		$this->user_memberships_reschedule_events = $plugin->load_class( '/includes/utilities/class-wc-memberships-user-memberships-reschedule-events.php', 'WC_Memberships_User_Memberships_Reschedule_Events' );
 	}
 
 

@@ -330,11 +330,7 @@ class WC_Memberships_Integration_Subscriptions_User_Memberships {
 
 
 	/**
-	 * Disables Ending Soon emails for memberships tied to a subscription.
-	 *
-	 * Currently, a subscription cannot be renewed before its expiration date.
-	 *
-	 * TODO however this could change in the future if Subscriptions introduces early renewals {FN 2017-04-04}
+	 * Disables Ending Soon emails for memberships tied to a subscription and early renewal is not allowed.
 	 *
 	 * @internal
 	 *
@@ -348,12 +344,22 @@ class WC_Memberships_Integration_Subscriptions_User_Memberships {
 
 		if ( $is_enabled ) {
 
-			if ( is_numeric( $user_membership ) ) {
-				$user_membership = wc_memberships_get_user_membership( $user_membership );
-			}
+			$user_membership = wc_memberships_get_user_membership( $user_membership );
 
-			// if it's linked to a subscription, skip
-			$is_enabled = wc_memberships_is_user_membership_linked_to_subscription( $user_membership ) ? false : $is_enabled;
+			if ( $user_membership instanceof \WC_Memberships_User_Membership ) {
+
+				// if it's linked to a subscription, skip
+				$is_enabled = ! wc_memberships_is_user_membership_linked_to_subscription( $user_membership );
+
+				// however, allow for an exception if early renewals are allowed
+				if ( ! $is_enabled && function_exists( 'wcs_can_user_renew_early' ) && class_exists( 'WCS_Early_Renewal_Manager' ) ) {
+
+					$subscription = $user_membership instanceof \WC_Memberships_Integration_Subscriptions_User_Membership ? $user_membership->get_subscription() : null;
+					$is_enabled   = $subscription
+					                && \WCS_Early_Renewal_Manager::is_early_renewal_enabled()
+					                && wcs_can_user_renew_early( $subscription, $user_membership->get_user_id() );
+				}
+			}
 		}
 
 		return $is_enabled;

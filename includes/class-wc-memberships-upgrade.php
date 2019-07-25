@@ -58,6 +58,7 @@ class WC_Memberships_Upgrade extends Framework\Plugin\Lifecycle {
 			'1.10.5',
 			'1.11.0',
 			'1.11.1',
+			'1.13.2',
 		];
 	}
 
@@ -166,6 +167,9 @@ class WC_Memberships_Upgrade extends Framework\Plugin\Lifecycle {
 
 			$wizard->delete_my_first_membership_plan_id();
 		}
+
+		// filesystem
+		self::create_files();
 	}
 
 
@@ -205,6 +209,46 @@ class WC_Memberships_Upgrade extends Framework\Plugin\Lifecycle {
 		_deprecated_function( 'WC_Memberships_Upgrade::run_update_scripts()', '1.11.0' );
 
 		$this->upgrade( $installed_version );
+	}
+
+
+	/**
+	 * Creates files/directories.
+	 *
+	 * Based on WC_Install::create_files()
+	 *
+	 * @since 1.13.2
+	 */
+	private static function create_files() {
+
+		// install files and folders for exported files and prevent hotlinking
+		$upload_dir  = wp_upload_dir();
+		$exports_dir = trailingslashit( $upload_dir['basedir'] ) . 'memberships_csv_exports';
+
+		$files = [
+			[
+				'base'    => $exports_dir,
+				'file'    => 'index.html',
+				'content' => '',
+			],
+			[
+				'base'    => $exports_dir,
+				'file'    => '.htaccess',
+				'content' => 'deny from all',
+			],
+		];
+
+		foreach ( $files as $file ) {
+
+			if ( wp_mkdir_p( $file['base'] ) && ! file_exists( trailingslashit( $file['base'] ) . $file['file'] ) ) {
+
+				if ( $file_handle = @fopen( trailingslashit( $file['base'] ) . $file['file'], 'w' ) ) {
+
+					fwrite( $file_handle, $file['content'] );
+					fclose( $file_handle );
+				}
+			}
+		}
 	}
 
 
@@ -506,6 +550,36 @@ class WC_Memberships_Upgrade extends Framework\Plugin\Lifecycle {
 
 		// add a flag to display a notice about Jilt advanced emails on upgrade
 		update_option( 'wc_memberships_show_advanced_emails_notice', 'yes' );
+	}
+
+
+	/**
+	 * Updates to version 1.13.2
+	 *
+	 * - Creates .htaccess and index.php files in the exports directory.
+	 * - Renames a WP Cron event and moves it into an Action Scheduler task.
+	 *
+	 * @since 1.13.2
+	 */
+	protected function upgrade_to_1_13_2() {
+
+		self::create_files();
+
+		$legacy_wp_cron_hook = 'wc_memberships_activate_delayed_user_memberships';
+		$new_as_task_hook    = 'wc_memberships_activate_delayed_user_membership';
+
+		if ( $next_scheduled = wp_next_scheduled( $legacy_wp_cron_hook ) ) {
+
+			wp_unschedule_event( $next_scheduled, $legacy_wp_cron_hook );
+
+			as_schedule_single_action(
+				// schedules activation of all delayed memberships 10 minutes after the upgrade routine is complete (may be worth to give a little time in case the user is updating multiple plugins, etc.)
+				max( 0, $next_scheduled, current_time( 'timestamp', true ) ) + ( 10 * MINUTE_IN_SECONDS ),
+				$new_as_task_hook,
+				[],
+				'woocommerce-memberships'
+			);
+		}
 	}
 
 

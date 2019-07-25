@@ -80,14 +80,8 @@ class WC_Memberships_User_Memberships {
 		add_action( 'wc_memberships_user_membership_expiring_soon',    array( $this, 'trigger_expiration_events' ), 10, 1 );
 		add_action( 'wc_memberships_user_membership_renewal_reminder', array( $this, 'trigger_expiration_events' ), 10, 1 );
 
-		// schedule recurring cron to activate delayed User Memberships
-		if ( ! (bool) wp_next_scheduled( 'wc_memberships_activate_delayed_user_memberships', array() ) ) {
-
-			wp_schedule_event( current_time( 'timestamp', true ) + MINUTE_IN_SECONDS, 'hourly', 'wc_memberships_activate_delayed_user_memberships', array() );
-		}
-
 		// activate delayed User Memberships
-		add_action( 'wc_memberships_activate_delayed_user_memberships', array( $this, 'activate_delayed_user_memberships' ) );
+		add_action( 'wc_memberships_activate_delayed_user_membership', [ $this, 'activate_delayed_user_memberships' ] );
 	}
 
 
@@ -206,7 +200,7 @@ class WC_Memberships_User_Memberships {
 
 			$user_membership->set_start_date( $start_date );
 
-		} elseif ( 'delayed' !== $user_membership->get_status() && $user_membership->get_start_date( 'timestamp' ) > strtotime( 'tomorrow', current_time( 'timestamp', true ) ) ) {
+		} elseif ( ! $user_membership->has_status( 'delayed' ) && $user_membership->get_start_date( 'timestamp' ) > strtotime( 'tomorrow', current_time( 'timestamp', true ) ) ) {
 
 			$user_membership->update_status( 'delayed' );
 		}
@@ -1183,46 +1177,53 @@ class WC_Memberships_User_Memberships {
 	/**
 	 * Activates delayed memberships, if found.
 	 *
-	 * Used mainly as a callback for a recurring WP Cron scheduled action.
+	 * Used mainly as a callback for an Action Scheduler task callback.
 	 * Third parties can use this public method to manually activate delayed memberships too.
 	 *
 	 * @since 1.12.0
 	 *
 	 * @param array $args optional arguments (may be used in callback or directly: accepts WP_Query arguments)
 	 */
-	public function activate_delayed_user_memberships( $args = array() ) {
+	public function activate_delayed_user_memberships( $args = [] ) {
 
 		if ( ! is_array( $args ) ) {
-			$args = array();
+			$args = [];
+		} elseif ( isset( $args['user_membership_id'] ) ) {
+			$args['p'] = (int) $args['user_membership_id'];
+			unset( $args['user_membership_id'] );
 		}
 
 		$args['post_type']   = 'wc_user_membership';
 		$args['post_status'] = 'wcm-delayed';
 
-		/**
-		 * Filters the number of delayed memberships that will be queried for activation on each batch.
-		 *
-		 * @since 1.12.0
-		 *
-		 * @param int $batch default 20
-		 * @param array $args optional arguments
-		 */
-		$args['posts_per_page'] = max( 1, (int) apply_filters( 'wc_memberships_activate_delayed_user_memberships_batch', ! empty( $args['posts_per_page'] ) ? (int) $args['posts_per_page'] : 20, $args ) );
+		// if a specific post search is included, this must be in an action scheduler callback context
+		if ( empty( $args['p'] ) ) {
 
-		// set meta query to look for memberships with a start date in the past
-		if ( ! isset( $args['meta_query'] ) || ! is_array( $args['meta_query'] ) ) {
-			$args['meta_query'] = array();
-		}
+			/**
+			 * Filters the number of delayed memberships that will be queried for activation on each batch.
+			 *
+			 * @since 1.12.0
+			 *
+			 * @param int $batch default 20
+			 * @param array $args optional arguments
+			 */
+			$args['posts_per_page'] = max( 1, (int) apply_filters( 'wc_memberships_activate_delayed_user_memberships_batch', ! empty( $args['posts_per_page'] ) ? (int) $args['posts_per_page'] : 20, $args ) );
 
-		$args['meta_query'][] = array(
-			'key'     => '_start_date',
-			'value'   => date( 'Y-m-d H:i:s', current_time( 'timestamp', true ) ),
-			'compare' => '<=',
-			'type'    => 'DATETIME'
-		);
+			// set meta query to look for memberships with a start date in the past
+			if ( ! isset( $args['meta_query'] ) || ! is_array( $args['meta_query'] ) ) {
+				$args['meta_query'] = [];
+			}
 
-		if ( count( $args['meta_query'] ) > 1 ) {
-			$args['meta_query']['relation'] = 'AND';
+			$args['meta_query'][] = [
+				'key'     => '_start_date',
+				'value'   => date( 'Y-m-d H:i:s', current_time( 'timestamp', true ) ),
+				'compare' => '<=',
+				'type'    => 'DATETIME'
+			];
+
+			if ( count( $args['meta_query'] ) > 1 ) {
+				$args['meta_query']['relation'] = 'AND';
+			}
 		}
 
 		// look for memberships whose status is delayed and the start date is set in the past or matches now
@@ -1452,6 +1453,7 @@ class WC_Memberships_User_Memberships {
 			do_action( 'wc_memberships_user_membership_deleted', $user_membership );
 
 			$user_membership->unschedule_expiration_events();
+			$user_membership->unschedule_activation_events();
 
 			$this->prune_object_caches( $user_membership );
 

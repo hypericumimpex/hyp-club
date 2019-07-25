@@ -1031,6 +1031,9 @@ class WC_Memberships_Integration_Subscriptions {
 	 * Checks if a Subscription associated to a Membership is renewable.
 	 *
 	 * @since 1.6.0
+	 * @deprecated since 1.13.2
+	 *
+	 * TODO remove this deprecated method by version 2.0.0 or by July 2020, whichever comes earlier {FN 2018-01-21}
 	 *
 	 * @param \WC_Subscription $subscription Subscription
 	 * @param \WC_Memberships_User_Membership $user_membership User Membership
@@ -1038,18 +1041,12 @@ class WC_Memberships_Integration_Subscriptions {
 	 */
 	public function is_subscription_linked_to_membership_renewable( $subscription, $user_membership ) {
 
-		$is_renewable    = false;
-		$user_membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( $user_membership->post );
+		_deprecated_function( 'WC_Memberships_Integration_Subscriptions::is_subscription_linked_to_membership_renewable()', '1.13.2', 'WC_Memberships_Integration_Subscriptions_User_Membership::can_be_renewed()' );
 
-		if (      $user_membership
-		     &&   $user_membership->can_be_renewed()
-		     && ! $user_membership->has_installment_plan()
-		     &&   wcs_can_user_resubscribe_to( $subscription, $user_membership->get_user_id() ) ) {
-
-			$is_renewable = true;
-		}
-
-		return $is_renewable;
+		return    $user_membership instanceof \WC_Memberships_Integration_Subscriptions_User_Membership
+		       && $user_membership->has_subscription()
+		       && function_exists( 'wcs_can_user_resubscribe_to' )
+		       && wcs_can_user_resubscribe_to( $subscription, $user_membership->get_user_id() );
 	}
 
 

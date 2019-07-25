@@ -494,12 +494,27 @@ if ( SkyVerge\WooCommerce\PluginFramework\v5_4_0\SV_WC_Plugin_Compatibility::is_
  */
 class WC_Memberships_CLI {}
 
-include_once __DIR__ . '/cli/class-wc-memberships-cli-command.php';
-include_once __DIR__ . '/cli/class-wc-memberships-cli-membership-plan.php';
-include_once __DIR__ . '/cli/class-wc-memberships-cli-membership-plan-rule.php';
-include_once __DIR__ . '/cli/class-wc-memberships-cli-user-membership.php';
+require_once __DIR__ . '/cli/class-wc-memberships-cli-command.php';
+require_once __DIR__ . '/cli/class-wc-memberships-cli-import-user-memberships.php';
+require_once __DIR__ . '/cli/class-wc-memberships-cli-membership-plan.php';
+require_once __DIR__ . '/cli/class-wc-memberships-cli-membership-plan-rule.php';
+require_once __DIR__ . '/cli/class-wc-memberships-cli-user-membership.php';
 
+// legacy commands for old style WP CLI (not mapped from the WC REST API)
+
+/* @deprecated: this is the legacy command now replaced by `wc user_membership <options>` */
 \WP_CLI::add_command( 'wc memberships membership', 'WC_Memberships_CLI_User_Membership' );
+/* @deprecated: this is the legacy command now replaced by `wc membership_plan <options>` */
 \WP_CLI::add_command( 'wc memberships plan',       'WC_Memberships_CLI_Membership_Plan' );
+/* @deprecated: these are legacy command to be replaced as we add support for membership rules in REST API */
 \WP_CLI::add_command( 'wc memberships plan rule',  'WC_Memberships_CLI_Membership_Plan_Rule' );
 \WP_CLI::add_command( 'wc memberships rule',       'WC_Memberships_CLI_Membership_Plan_Rule' ); // TODO: remove this when the above command can be fixed {CW 2018-11-14}
+
+// extended commands (not included with default WP CLI REST API mappings)
+
+// import memberships from CLI: `wc user_membership import <file> <options>`
+\WP_CLI::add_command(
+	'wc user_membership import',
+	[ '\\SkyVerge\\WooCommerce\\Memberships\\CLI\\Import_User_Memberships', 'import' ],
+	[ 'synopsis' => \SkyVerge\WooCommerce\Memberships\CLI\Import_User_Memberships::synopsis() ]
+);

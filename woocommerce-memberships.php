@@ -5,7 +5,7 @@
  * Description: Sell memberships that provide access to restricted content, products, discounts, and more!
  * Author: Romeo C.
  * Author URI: https://github.com/hypericumimpex/
- * Version: 1.13.1
+ * Version: 1.13.2
  * Text Domain: woocommerce-memberships
  * Domain Path: /i18n/languages/
  *
