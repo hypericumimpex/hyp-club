@@ -21,7 +21,7 @@
  *
  * Woo: 958589:9288e7609ad0b487b81ef6232efa5cfc
  * WC requires at least: 2.6.14
- * WC tested up to: 3.6.4
+ * WC tested up to: 3.6.5
  */
 
 defined( 'ABSPATH' ) or exit;
