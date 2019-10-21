@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -924,9 +924,42 @@ class WC_Memberships_CSV_Export_User_Memberships extends \WC_Memberships_Job_Han
 
 		// stream the file
 		$fp = fopen( $job->file_path, 'rb' );
-		fpassthru( $fp );
+
+		$fpassthru_disabled = $this->is_fpassthru_disabled();
+
+		// fpassthru might be disabled in some hosts (like Flywheel)
+		if ( $fpassthru_disabled || ! @fpassthru( $fp ) ) {
+
+			$contents = @stream_get_contents( $fp );
+
+			echo $contents ?: '';
+		}
 
 		exit();
+	}
+
+
+	/**
+	 * Checks whether fpassthru has been disabled in PHP.
+	 *
+	 * Helper method, do not open to public.
+	 *
+	 * @since 1.15.3
+	 *
+	 * @return bool
+	 */
+	private function is_fpassthru_disabled() {
+
+		$disabled = false;
+
+		if ( function_exists( 'ini_get' ) ) {
+
+			$disabled_functions = @ini_get( 'disable_functions' );
+
+			$disabled = is_string( $disabled_functions ) && in_array( 'fpassthru', explode( ',', $disabled_functions ), false );
+		}
+
+		return $disabled;
 	}
 
 

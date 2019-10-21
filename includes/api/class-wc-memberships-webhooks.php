@@ -23,7 +23,7 @@
 
 namespace SkyVerge\WooCommerce\Memberships\API;
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -46,40 +46,37 @@ class Webhooks {
 	 */
 	public function __construct() {
 
-		if ( Framework\SV_WC_Plugin_Compatibility::is_wc_version_gte_3_0() ) {
+		// add webhook resources and events
+		add_filter( 'woocommerce_valid_webhook_resources', [ $this, 'add_resources' ] );
+		add_filter( 'woocommerce_valid_webhook_events',    [ $this, 'add_events' ] );
+		// add webhook topics and their hooks
+		add_filter( 'woocommerce_webhook_topics',      [ $this, 'add_topics' ] );
+		add_filter( 'woocommerce_webhook_topic_hooks', [ $this, 'add_topic_hooks' ], 10, 2 );
 
-			// add webhook resources and events
-			add_filter( 'woocommerce_valid_webhook_resources', [ $this, 'add_resources' ] );
-			add_filter( 'woocommerce_valid_webhook_events',    [ $this, 'add_events' ] );
-			// add webhook topics and their hooks
-			add_filter( 'woocommerce_webhook_topics',      [ $this, 'add_topics' ] );
-			add_filter( 'woocommerce_webhook_topic_hooks', [ $this, 'add_topic_hooks' ], 10, 2 );
+		// create webhook payloads
+		add_filter( 'woocommerce_webhook_payload', [ $this, 'create_payload' ], 1, 4 );
 
-			// create webhook payloads
-			add_filter( 'woocommerce_webhook_payload', [ $this, 'create_payload' ], 1, 4 );
+		// check whether webhook should be delivered
+		add_filter( 'woocommerce_webhook_should_deliver', [ $this, 'handle_webhook_delivery' ], 100, 3 );
 
-			// check whether webhook should be delivered
-			add_filter( 'woocommerce_webhook_should_deliver', [ $this, 'handle_webhook_delivery' ], 100, 3 );
+		// when creating a membership plan or user membership from admin, look for posts going from auto draft to publish status
+		add_action( 'transition_post_status', [ $this, 'handle_new_object_published' ], 10, 3 );
 
-			// when creating a membership plan or user membership from admin, look for posts going from auto draft to publish status
-			add_action( 'transition_post_status', [ $this, 'handle_new_object_published' ], 10, 3 );
+		// add actions for user membership webhooks consumption
+		add_action( 'wc_memberships_user_membership_created',        [ $this, 'add_user_membership_created_webhook_action' ], 999, 2 );
+		add_action( 'wc_memberships_user_membership_saved',          [ $this, 'add_user_membership_created_webhook_action' ], 999, 2 );
+		add_action( 'wc_memberships_user_membership_created',        [ $this, 'add_user_membership_updated_webhook_action' ], 999, 2 );
+		add_action( 'wc_memberships_user_membership_status_changed', [ $this, 'add_user_membership_updated_webhook_action' ], 999, 2 );
+		add_action( 'wc_memberships_user_membership_saved',          [ $this, 'add_user_membership_updated_webhook_action' ], 999, 2 );
+		add_action( 'wc_memberships_user_membership_transferred',    [ $this, 'add_user_membership_transferred_webhook_action' ], 999 );
+		add_action( 'wc_memberships_user_membership_deleted',        [ $this, 'add_user_membership_deleted_webhook_action' ], 999 );
 
-			// add actions for user membership webhooks consumption
-			add_action( 'wc_memberships_user_membership_created',        [ $this, 'add_user_membership_created_webhook_action' ], 999, 2 );
-			add_action( 'wc_memberships_user_membership_saved',          [ $this, 'add_user_membership_created_webhook_action' ], 999, 2 );
-			add_action( 'wc_memberships_user_membership_created',        [ $this, 'add_user_membership_updated_webhook_action' ], 999, 2 );
-			add_action( 'wc_memberships_user_membership_status_changed', [ $this, 'add_user_membership_updated_webhook_action' ], 999, 2 );
-			add_action( 'wc_memberships_user_membership_saved',          [ $this, 'add_user_membership_updated_webhook_action' ], 999, 2 );
-			add_action( 'wc_memberships_user_membership_transferred',    [ $this, 'add_user_membership_transferred_webhook_action' ], 999 );
-			add_action( 'wc_memberships_user_membership_deleted',        [ $this, 'add_user_membership_deleted_webhook_action' ], 999 );
-
-			// add actions for membership plan webhooks consumption
-			add_action( 'wp_insert_post', [ $this, 'add_membership_plan_created_webhook_action' ], 999, 3 );
-			add_action( 'wp_insert_post', [ $this, 'add_membership_plan_updated_webhook_action' ], 999, 3 );
-			add_action( 'post_updated',   [ $this, 'add_membership_plan_updated_webhook_action' ], 999, 2 );
-			add_action( 'trashed_post',   [ $this, 'add_membership_plan_deleted_webhook_action' ], 999 );
-			add_action( 'untrashed_post', [ $this, 'add_membership_plan_restored_webhook_action' ], 999 );
-		}
+		// add actions for membership plan webhooks consumption
+		add_action( 'wp_insert_post', [ $this, 'add_membership_plan_created_webhook_action' ], 999, 3 );
+		add_action( 'wp_insert_post', [ $this, 'add_membership_plan_updated_webhook_action' ], 999, 3 );
+		add_action( 'post_updated',   [ $this, 'add_membership_plan_updated_webhook_action' ], 999, 2 );
+		add_action( 'trashed_post',   [ $this, 'add_membership_plan_deleted_webhook_action' ], 999 );
+		add_action( 'untrashed_post', [ $this, 'add_membership_plan_restored_webhook_action' ], 999 );
 	}
 
 

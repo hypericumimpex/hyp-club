@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -376,7 +376,7 @@ class WC_Memberships_Products_Restrictions {
 		     || ! current_user_can( 'wc_memberships_purchase_restricted_product', $product_id )
 		     || ! current_user_can( 'wc_memberships_purchase_delayed_product',    $product_id ) ) {
 
-			$purchasable = wc_memberships()->get_restrictions_instance()->is_product_public( $product_id );
+			$purchasable = wc_memberships()->get_restrictions_instance()->is_product_public( $product instanceof \WC_Product_Variation ? $product->get_parent_id() : $product_id );
 		}
 
 		return $purchasable;

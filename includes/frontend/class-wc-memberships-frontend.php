@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -445,33 +445,34 @@ class WC_Memberships_Frontend {
 						 *
 						 * @since 1.7.4
 						 *
-						 * @param bool $add_to_cart whether to add to cart the product and redirect to checkout (true, default) or redirect to product page instead (false).
-						 * @param \WC_Product $product_for_renewal the product that would renew access if purchased again.
-						 * @param int $user_membership_id the membership being renewed upon purchase.
+						 * @param bool $add_to_cart whether to add to cart the product and redirect to checkout (default true unless a parent of an unspecified variation) or redirect to product page instead (false)
+						 * @param \WC_Product $product_for_renewal the product that would renew access if purchased again
+						 * @param int $user_membership_id the membership being renewed upon purchase
 						 */
-						if ( true === (bool) apply_filters( 'wc_memberships_add_to_cart_renewal_product', true, $product_for_renewal, $user_membership->get_id() ) ) {
+						if ( true === (bool) apply_filters( 'wc_memberships_add_to_cart_renewal_product', ! $product_for_renewal->is_type( 'variable' ), $product_for_renewal, $user_membership->get_id() ) ) {
 
 							// empty the cart and add the one product to renew this membership
 							wc_empty_cart();
 
 							// set up variation data (if needed) before adding to the cart
-							$product_id           = $product_for_renewal->is_type( 'variation' ) ? Framework\SV_WC_Product_Compatibility::get_prop( $product_for_renewal, 'parent_id' ) : $product_for_renewal->get_id();
+							$product_id           = $product_for_renewal->is_type( 'variation' ) ? $product_for_renewal->get_parent_id() : $product_for_renewal->get_id();
 							$variation_id         = $product_for_renewal->is_type( 'variation' ) ? $product_for_renewal->get_id() : 0;
-							$variation_attributes = $product_for_renewal->is_type( 'variation' ) ? wc_get_product_variation_attributes( $variation_id ) : array();
+							$variation_attributes = $product_for_renewal->is_type( 'variation' ) ? wc_get_product_variation_attributes( $variation_id ) : [];
 
 							// add the product to the cart
-							WC()->cart->add_to_cart( $product_id, 1, $variation_id, $variation_attributes );
+							$show_message = WC()->cart->add_to_cart( $product_id, 1, $variation_id, $variation_attributes );
 
 							// then redirect to checkout instead of my account page
 							$redirect_url = wc_get_checkout_url();
 
 						} else {
 
-							$redirect_url = get_permalink( $product_for_renewal->is_type( 'variation' ) ? Framework\SV_WC_Product_Compatibility::get_prop( $product_for_renewal, 'parent_id' ) : $product_for_renewal->get_id() );
+							$show_message = true;
+							$redirect_url = get_permalink( $product_for_renewal->is_type( 'variation' ) ? $product_for_renewal->get_parent_id() : $product_for_renewal->get_id() );
 						}
 
 						/* translators: Placeholder: %s - a product to purchase to renew a membership */
-						$message  = sprintf( __( 'Renew your membership by purchasing %s.', 'woocommerce-memberships' ) . ' ', $product_for_renewal->get_title() );
+						$message  = false === (bool) $show_message ? '' : sprintf( __( 'Renew your membership by purchasing %s.', 'woocommerce-memberships' ) . ' ', $product_for_renewal->get_title() );
 						$message .= is_user_logged_in() ? ' ' : __( 'You must be logged to renew your membership.', 'woocommerce-memberships' );
 
 					} else {
@@ -479,7 +480,7 @@ class WC_Memberships_Frontend {
 						$error_message = $default_error_message;
 					}
 
-					// login process may produce a more generic Exception
+				// login process may produce a more generic Exception
 				} catch ( \Exception $e ) {
 
 					$error_message = $e->getMessage();

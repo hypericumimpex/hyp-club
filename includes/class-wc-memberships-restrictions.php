@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -496,7 +496,7 @@ class WC_Memberships_Restrictions {
 
 		if ( false === $use_cache || ! is_array( $this->public_posts ) ) {
 
-			$posts = array();
+			$posts = [];
 
 			if ( true === $use_cache ) {
 
@@ -510,7 +510,8 @@ class WC_Memberships_Restrictions {
 			} else {
 
 				$found_items = $wpdb->get_results( "
-					SELECT p.ID, p.post_type FROM $wpdb->posts p
+					SELECT p.ID, p.post_type 
+					FROM $wpdb->posts p
 					LEFT JOIN $wpdb->postmeta pm
 					ON p.ID = pm.post_id
 					WHERE pm.meta_key = '_wc_memberships_force_public'
@@ -526,19 +527,36 @@ class WC_Memberships_Restrictions {
 				}
 
 				if ( ! empty( $posts ) ) {
-					$this->update_public_content_cache( array( 'posts' => $posts ) );
+
+					// maybe add product variations to product results
+					if ( ! empty( $posts['product'] ) ) {
+
+						$parents    = implode( ',', $posts['product'] );
+						$variations = $wpdb->get_col( "
+							SELECT p.ID
+							FROM {$wpdb->posts} p
+							WHERE p.post_type = 'product_variation'
+							AND p.post_parent IN ({$parents})
+						" );
+
+						$posts['product'] = array_merge( $posts['product'], array_map( 'absint', $variations ) );
+					}
+
+					$this->update_public_content_cache( [ 'posts' => $posts ] );
 				}
 			}
 
 			$this->public_posts = $posts;
 		}
 
-		if ( is_array( $which_post_type ) ) {
-			$results = ! empty( $this->public_posts ) && ! empty( $which_post_type ) ? array_intersect_key( $this->public_posts, array_combine( $which_post_type, $which_post_type ) ) : array();
-		} elseif ( in_array( $which_post_type, array( null, 'any', 'all' ), true ) ) {
+		if ( in_array( $which_post_type, [ null, 'any', 'all' ], true ) ) {
 			$results = $this->public_posts;
-		}  else {
-			$results = isset( $this->public_posts[ $which_post_type ] ) ? $this->public_posts[ $which_post_type ] : array();
+		} elseif ( is_array( $which_post_type ) ) {
+			$results = ! empty( $this->public_posts ) && ! empty( $which_post_type ) ? array_intersect_key( $this->public_posts, array_combine( $which_post_type, $which_post_type ) ) : [];
+		} elseif ( is_string( $which_post_type ) ) {
+			$results = isset( $this->public_posts[ $which_post_type ] ) ? $this->public_posts[ $which_post_type ] : [];
+		} else {
+			$results = [];
 		}
 
 		return $results;
@@ -646,7 +664,7 @@ class WC_Memberships_Restrictions {
 	 *
 	 * @since 1.12.0
 	 *
-	 * @param array|\WC_Product|\WP_Post|int $object post, product or ID, or array of
+	 * @param array|\WC_Product|\WP_Post|int $object post, product or ID, or array of (used in bulk actions)
 	 * @param string $force_public either 'yes' or 'no'
 	 * @return int number of items set (0 for failure)
 	 */
@@ -654,9 +672,9 @@ class WC_Memberships_Restrictions {
 
 		$success = 0;
 
-		if ( in_array( $force_public, array( 'yes', 'no' ), true ) ) {
+		if ( in_array( $force_public, [ 'yes', 'no' ], true ) ) {
 
-			$items = is_array( $object ) ? $object : array( $object );
+			$items = is_array( $object ) ? $object : [ $object ];
 
 			foreach ( $items as $item ) {
 				if ( wc_memberships_set_content_meta( $item, '_wc_memberships_force_public', $force_public ) ) {

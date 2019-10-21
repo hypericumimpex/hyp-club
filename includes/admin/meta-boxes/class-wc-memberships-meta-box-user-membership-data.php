@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -372,8 +372,6 @@ class WC_Memberships_Meta_Box_User_Membership_Data extends \WC_Memberships_Meta_
 					'class'   => 'wc-enhanced-select wide',
 				) );
 
-				$yy_mm_dd_hint = __( 'YYYY-MM-DD', 'woocommerce-memberships' );
-
 				if ( 'post.php' === $pagenow ) {
 					// existing membership:
 					// get the start date saved for this membership
@@ -384,14 +382,12 @@ class WC_Memberships_Meta_Box_User_Membership_Data extends \WC_Memberships_Meta_
 					$start_date  = $membership_plan ? $membership_plan->get_local_access_start_date() : date_i18n( 'Y-m-d', current_time( 'timestamp' ) );
 				}
 
-				$calc_start_date = '<a href="#" class="js-calc-plan-date js-calc-plan-start-date">' . esc_html__( 'Update start date to plan start access date', 'woocommerce-memberships' ) . '</a>';
-
 				// start date
 				woocommerce_wp_text_input( array(
 					'id'          => '_start_date',
 					'label'       => __( 'Member since:', 'woocommerce-memberships' ),
 					'class'       => 'js-user-membership-date',
-					'description' => '<small>' . ( is_rtl() ? $calc_start_date . ' - ' . $yy_mm_dd_hint : $yy_mm_dd_hint . ' - ' . $calc_start_date  ) . '</small>',
+					'description' => '<code>YYYY-MM-DD</code> <small><a href="#" class="js-calc-plan-date js-calc-plan-start-date">' . esc_html__( 'Update start date to plan start access date', 'woocommerce-memberships' ) . '</a></small>',
 					'value'       => substr( $start_date, 0, 10 ),
 				) );
 
@@ -410,14 +406,12 @@ class WC_Memberships_Meta_Box_User_Membership_Data extends \WC_Memberships_Meta_
 					}
 				}
 
-				$calc_end_date = '<a href="#" class="js-calc-plan-date js-calc-plan-end-date">' . esc_html__( 'Update expiration date to plan length', 'woocommerce-memberships' ) . '</a>';
-
 				// end date
 				woocommerce_wp_text_input( array(
 					'id'          => '_end_date',
 					'label'       => __( 'Expires:', 'woocommerce-memberships' ),
 					'class'       => 'js-user-membership-date',
-					'description' => '<small>' . ( is_rtl() ? $calc_end_date . ' - ' . $yy_mm_dd_hint : $yy_mm_dd_hint . ' - ' . $calc_end_date  ) . '</small>',
+					'description' => '<code>YYYY-MM-DD</code> <small><a href="#" class="js-calc-plan-date js-calc-plan-end-date">' . esc_html__( 'Update expiration date to plan length', 'woocommerce-memberships' ) . '</a></small>',
 					'value'       => substr( $end_date, 0, 10 ),
 				) );
 

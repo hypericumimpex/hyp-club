@@ -1,5 +1,35 @@
 *** WooCommerce Memberships Changelog ***
 
+2019.10.15 - version 1.15.3
+ * Fix - Use the chosen timezone when creating the import job if the option to do so is selected
+ * Fix - Ensure that plans using fixed dates have memberships setting their start and end dates at midnight
+ * Fix - Ensure that user memberships can be exported without error also on hosting providers that have disabled `fpassthru()` PHP function
+
+2019.09.18 - version 1.15.2
+ * Fix - Propose the original variation of the variable product that granted access when renewing a membership, if available
+ * Fix - Ensure accented characters are displayed properly in restricted content excerpts
+ * Misc - Explicitly require PHP DOM extension
+
+2019.09.05 - version 1.15.1
+ * Fix - Ensure that newly created Membership Plans can be correctly published
+ * Fix - Correctly handle long posts or product names in a membership plan rules search field
+
+2019.09.05 - version 1.15.0
+ * Feature - Add a Member content block editor to display content to members only (WordPress 5.2+)
+ * Feature - Add a Non-member content block to display content to non-members only (WordPress 5.2+)
+ * Tweak - Instead of standard WordPress emails, send WooCommerce "New Account" email to users created when importing members and customer notification is enabled in import preferences
+ * Tweak - Alert merchants and ask for confirmation when setting blanket restriction or discount rules to a membership plan
+ * Tweak - When trashing a product that may grant access to a membership plan, alert the shop manager with a warning
+ * Fix - Product variations whose variable parent has been forced public should also be made available for purchase despite restriction rules
+ * Fix - Ensure Next Bill On dates are correctly displayed in My Account when a membership is linked to a subscription
+
+2019.08.09 - version 1.14.0
+ * Fix - Prevent conflicts between content IDs when generating login redirect URLs in restriction messages
+ * Misc - Rename "Membership activated" email as "Delayed membership activated" email
+ * Misc - Add support for WooCommerce 3.7
+ * Misc - Remove support for WooCommerce 2.6
+ * Misc - Require PHP 5.6+
+
 2019.07.18 - version 1.13.2
  * Tweak - Consider a subscription-tied membership renewable regardless of its status if it has an expiry date and early renewal is allowed
  * Tweak - Allow sending ending soon emails for memberships that are linked to a subscription if the latter can be renewed early

@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -971,14 +971,8 @@ class WC_Memberships_Member_Discounts {
 		     && ! $this->is_product_excluded_from_member_discounts( $product )
 		     &&   $this->user_has_member_discount( $product ) ) {
 
-			if ( Framework\SV_WC_Plugin_Compatibility::is_wc_version_gte_3_0() ) {
-				$get_sale_price_filter = 'woocommerce_product_get_sale_price';
-			} else {
-				$get_sale_price_filter = 'woocommerce_get_sale_price';
-			}
-
 			// account also for variation sale price filter
-			if ( in_array( current_filter(), array( $get_sale_price_filter, 'woocommerce_product_variation_get_sale_price' ), false ) ) {
+			if ( in_array( current_filter(), [ 'woocommerce_product_get_sale_price', 'woocommerce_product_variation_get_sale_price' ], false ) ) {
 				$member_price = $product->get_price();
 			} else {
 				$member_price = $this->get_discounted_price( $price, $product, get_current_user_id() );
@@ -1753,26 +1747,15 @@ class WC_Memberships_Member_Discounts {
 		 */
 		$priority = apply_filters( 'wc_memberships_price_adjustments_filter_priority', 999 );
 
-		// WC 3.0 has deprecated some filters, we handle legacy too for backwards compatibility.
-		if ( Framework\SV_WC_Plugin_Compatibility::is_wc_version_gte_3_0() ) {
-			// apply membership discount to product price
-			add_filter( 'woocommerce_product_get_sale_price',              array( $this, 'get_member_price' ), $priority, 2 );
-			add_filter( 'woocommerce_product_variation_get_sale_price',    array( $this, 'get_member_price' ), $priority, 2 );
-			add_filter( 'woocommerce_product_get_price',                   array( $this, 'get_member_price' ), $priority, 2 );
-			add_filter( 'woocommerce_product_variation_get_price',         array( $this, 'get_member_price' ), $priority, 2 );
-			// replace regular price with sale
-			/** @see \WC_Memberships_Member_Discounts::member_prices_display_sale_price() */
-			add_filter( 'woocommerce_product_get_regular_price',           array( $this, 'get_member_regular_price' ), $priority, 2 );
-			add_filter( 'woocommerce_product_variation_get_regular_price', array( $this, 'get_member_regular_price' ), $priority, 2 );
-		} else {
-			// apply membership discount to product price
-			add_filter( 'woocommerce_get_sale_price',                      array( $this, 'get_member_price' ), $priority, 2 );
-			add_filter( 'woocommerce_get_price',                           array( $this, 'get_member_price' ), $priority, 2 );
-			// replace regular price with sale
-			/** @see \WC_Memberships_Member_Discounts::member_prices_display_sale_price() */
-			add_filter( 'woocommerce_get_regular_price',                   array( $this, 'get_member_regular_price' ), $priority, 2 );
-		}
-
+		// apply membership discount to product price
+		add_filter( 'woocommerce_product_get_sale_price',              array( $this, 'get_member_price' ), $priority, 2 );
+		add_filter( 'woocommerce_product_variation_get_sale_price',    array( $this, 'get_member_price' ), $priority, 2 );
+		add_filter( 'woocommerce_product_get_price',                   array( $this, 'get_member_price' ), $priority, 2 );
+		add_filter( 'woocommerce_product_variation_get_price',         array( $this, 'get_member_price' ), $priority, 2 );
+		// replace regular price with sale
+		/** @see \WC_Memberships_Member_Discounts::member_prices_display_sale_price() */
+		add_filter( 'woocommerce_product_get_regular_price',           array( $this, 'get_member_regular_price' ), $priority, 2 );
+		add_filter( 'woocommerce_product_variation_get_regular_price', array( $this, 'get_member_regular_price' ), $priority, 2 );
 		// apply membership discount to variation price
 		add_filter( 'woocommerce_variation_prices_sale_price',    array( $this, 'get_member_variation_price' ), $priority, 3 );
 		add_filter( 'woocommerce_variation_prices_price',         array( $this, 'get_member_variation_price' ), $priority, 3 );
@@ -1804,22 +1787,13 @@ class WC_Memberships_Member_Discounts {
 		 */
 		$priority = apply_filters( 'wc_memberships_price_adjustments_filter_priority', 999 );
 
-		// WC 3.0 has deprecated some filters, we handle legacy too for backwards compatibility.
-		if ( Framework\SV_WC_Plugin_Compatibility::is_wc_version_gte_3_0() ) {
-			// restore prices to original amount before membership discount
-			remove_filter( 'woocommerce_product_get_sale_price',              array( $this, 'get_member_price' ), $priority );
-			remove_filter( 'woocommerce_product_get_price',                   array( $this, 'get_member_price' ), $priority );
-			remove_filter( 'woocommerce_product_variation_get_price',         array( $this, 'get_member_price' ), $priority );
-			remove_filter( 'woocommerce_product_variation_get_sale_price',    array( $this, 'get_member_price' ), $priority );
-			remove_filter( 'woocommerce_product_get_regular_price',           array( $this, 'get_member_regular_price' ), $priority );
-			remove_filter( 'woocommerce_product_variation_get_regular_price', array( $this, 'get_member_regular_price' ), $priority );
-		} else {
-			// restore prices to original amount before membership discount
-			remove_filter( 'woocommerce_get_sale_price',             array( $this, 'get_member_price' ), $priority );
-			remove_filter( 'woocommerce_get_price',                  array( $this, 'get_member_price' ), $priority );
-			remove_filter( 'woocommerce_get_regular_price',          array( $this, 'get_member_regular_price' ), $priority );
-		}
-
+		// restore prices to original amount before membership discount
+		remove_filter( 'woocommerce_product_get_sale_price',              array( $this, 'get_member_price' ), $priority );
+		remove_filter( 'woocommerce_product_get_price',                   array( $this, 'get_member_price' ), $priority );
+		remove_filter( 'woocommerce_product_variation_get_price',         array( $this, 'get_member_price' ), $priority );
+		remove_filter( 'woocommerce_product_variation_get_sale_price',    array( $this, 'get_member_price' ), $priority );
+		remove_filter( 'woocommerce_product_get_regular_price',           array( $this, 'get_member_regular_price' ), $priority );
+		remove_filter( 'woocommerce_product_variation_get_regular_price', array( $this, 'get_member_regular_price' ), $priority );
 		remove_filter( 'woocommerce_variation_prices_sale_price',    array( $this, 'get_member_variation_price' ), $priority );
 		remove_filter( 'woocommerce_variation_prices_price',         array( $this, 'get_member_variation_price' ), $priority );
 		remove_filter( 'woocommerce_variation_prices_regular_price', array( $this, 'get_member_variation_regular_price' ), $priority );
@@ -1838,13 +1812,8 @@ class WC_Memberships_Member_Discounts {
 	public function enable_price_html_adjustments() {
 
 		// adjust environment for calculating discounted price html strings
-		add_filter( 'woocommerce_get_price_html', array( $this, 'get_member_price_html' ), 999, 2 );
-
-		if ( Framework\SV_WC_Plugin_Compatibility::is_wc_version_gte_3_0() ) {
-			add_filter( 'woocommerce_product_variation_get_price_html', array( $this, 'get_member_price_html' ), 999, 2 );
-		} else {
-			add_filter( 'woocommerce_get_variation_price_html',         array( $this, 'get_member_price_html' ), 999, 2 );
-		}
+		add_filter( 'woocommerce_get_price_html',                   array( $this, 'get_member_price_html' ), 999, 2 );
+		add_filter( 'woocommerce_product_variation_get_price_html', array( $this, 'get_member_price_html' ), 999, 2 );
 
 		// make sure that by default, 'is_on_sale' is based on prices before member discounts
 		add_filter( 'woocommerce_product_is_on_sale', array( $this, 'product_is_on_sale' ), 999, 2 );
@@ -1862,13 +1831,8 @@ class WC_Memberships_Member_Discounts {
 	public function disable_price_html_adjustments() {
 
 		// adjust environment for calculating discounted price html strings
-		remove_filter( 'woocommerce_get_price_html', array( $this, 'get_member_price_html' ), 999 );
-
-		if ( Framework\SV_WC_Plugin_Compatibility::is_wc_version_gte_3_0() ) {
-			remove_filter( 'woocommerce_product_variation_get_price_html', array( $this, 'get_member_price_html' ), 999 );
-		} else {
-			remove_filter( 'woocommerce_get_variation_price_html',         array( $this, 'get_member_price_html' ), 999 );
-		}
+		remove_filter( 'woocommerce_get_price_html',                   array( $this, 'get_member_price_html' ), 999 );
+		remove_filter( 'woocommerce_product_variation_get_price_html', array( $this, 'get_member_price_html' ), 999 );
 
 		// make sure that by default, 'is_on_sale' is based on prices before member discounts
 		remove_filter( 'woocommerce_product_is_on_sale', array( $this, 'product_is_on_sale' ), 999 );

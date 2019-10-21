@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -33,7 +33,7 @@ defined( 'ABSPATH' ) or exit;
 class WC_Memberships_Admin {
 
 
-	/** @var \SV_WP_Admin_Message_Handler instance */
+	/** @var Framework\SV_WP_Admin_Message_Handler instance */
 	public $message_handler; // this is passed from \WC_Memberships and can't be protected
 
 	/** @var \WC_Memberships_Admin_Import_Export_Handler instance */
@@ -111,7 +111,7 @@ class WC_Memberships_Admin {
 	 *
 	 * @since 1.6.0
 	 *
-	 * @return \SV_WP_Admin_Message_Handler
+	 * @return Framework\SV_WP_Admin_Message_Handler
 	 */
 	public function get_message_handler() {
 		// note: this property is public since it needs to be passed from the main class
@@ -966,14 +966,13 @@ class WC_Memberships_Admin {
 		}
 
 		// localize the main admin script to add variable properties and localization strings.
-		wp_localize_script( 'wc-memberships-admin', 'wc_memberships_admin', array(
+		wp_localize_script( 'wc-memberships-admin', 'wc_memberships_admin', [
 
 			// add any config/state properties here, for example:
 			// 'is_user_logged_in' => is_user_logged_in()
 
 			'ajax_url'                                  => admin_url( 'admin-ajax.php' ),
 			'new_membership_url'                        => admin_url( 'post-new.php?post_type=wc_user_membership' ),
-			'select2_version'                           => Framework\SV_WC_Plugin_Compatibility::is_wc_version_gte_3_0() ? '4.0.3' : '3.5.3',
 			'wc_plugin_url'                             => WC()->plugin_url(),
 			'calendar_image'                            => WC()->plugin_url() . '/assets/images/calendar.png',
 			'user_membership_url'                       => admin_url( 'edit.php?post_type=wc_user_membership' ),
@@ -996,23 +995,28 @@ class WC_Memberships_Admin {
 			'export_user_memberships_nonce'             => wp_create_nonce( 'export-user-memberships' ),
 			'import_user_memberships_nonce'             => wp_create_nonce( 'import-user-memberships' ),
 
-			'i18n' => array(
+			'i18n' => [
 
 				// add i18n strings here, for example:
 				// 'log_in' => __( 'Log In', 'woocommerce-memberships' )
 
-				'delete_membership_confirm'  => __( 'Are you sure that you want to permanently delete this membership?', 'woocommerce-memberships' ),
-				'delete_memberships_confirm' => __( 'Are you sure that you want to permanently delete these memberships?', 'woocommerce-memberships' ),
-				'please_select_user'         => __( 'Please select a user.', 'woocommerce-memberships' ),
-				'reschedule'                 => __( 'Reschedule', 'woocommerce-memberships' ),
-				'export_user_memberships'    => __( 'Export User Memberships', 'woocommerce-memberships' ),
-				'import_file_missing'        => __( 'Please upload a file to import memberships from.', 'woocommerce-memberships' ),
-				'confirm_export_cancel'      => __( 'Are you sure you want to cancel this export?', 'woocommerce-memberships' ),
-				'confirm_import_cancel'      => __( 'Are you sure you want to cancel this import?', 'woocommerce-memberships' ),
-				'confirm_stop_batch_job'     => __( 'Are you sure you want to stop the current batch process?', 'woocommerce-memberships' ),
+				'delete_membership_confirm'        => __( 'Are you sure that you want to permanently delete this membership?', 'woocommerce-memberships' ),
+				'delete_memberships_confirm'       => __( 'Are you sure that you want to permanently delete these memberships?', 'woocommerce-memberships' ),
+				'please_select_user'               => __( 'Please select a user.', 'woocommerce-memberships' ),
+				'reschedule'                       => __( 'Reschedule', 'woocommerce-memberships' ),
+				'export_user_memberships'          => __( 'Export User Memberships', 'woocommerce-memberships' ),
+				'import_file_missing'              => __( 'Please upload a file to import memberships from.', 'woocommerce-memberships' ),
+				'confirm_export_cancel'            => __( 'Are you sure you want to cancel this export?', 'woocommerce-memberships' ),
+				'confirm_import_cancel'            => __( 'Are you sure you want to cancel this import?', 'woocommerce-memberships' ),
+				'confirm_stop_batch_job'           => __( 'Are you sure you want to stop the current batch process?', 'woocommerce-memberships' ),
+				'blanket_rule_warning'             => __( 'One or more of your rules uses a blank "Title" field - blank rules apply the rule to all content. This may restrict all content or products, or offer discounts on all products.', 'woocommerce-memberships' ),
+				'blanket_content_restriction_rule' => __( 'On the Restrict Content tab, all content under the specified post type or taxonomy will be restricted to plan members', 'woocommerce-memberships' ),
+				'blanket_product_restriction_rule' => __( 'On the Restrict Products tab, all products will be restricted to plan members', 'woocommerce-memberships' ),
+				'blanket_product_discount_rule'    => __( 'On the Purchasing Discounts tab, all products will have a discount for plan members', 'woocommerce-memberships' ),
+				'blanket_rule_confirmation'        => __( 'Please confirm to save the rules or cancel to review without saving.', 'woocommerce-memberships' ),
 
-			),
-		) );
+			],
+		] );
 	}
 
 
@@ -1230,6 +1234,41 @@ class WC_Memberships_Admin {
 	 * @since 1.0.0
 	 */
 	public function show_admin_messages() {
+		global $current_screen;
+
+		// maybe add an informational notice about Jilt member emails
+		if (
+			     $current_screen
+			&&   isset( $_GET['tab'], $_GET['section'] )
+			&&   $_GET['tab'] === 'email'
+			&&   $current_screen->id === Framework\SV_WC_Plugin_Compatibility::normalize_wc_screen_id()
+			&& ! wc_memberships()->get_integrations_instance()->is_jilt_active()
+		) {
+
+			foreach ( wc_memberships()->get_emails_instance()->get_email_class_names() as $membership_email_cass ) {
+
+				$membership_email_id = strtolower( $membership_email_cass );
+
+				if ( $membership_email_id === $_GET['section'] ) {
+
+					wc_memberships()->get_admin_notice_handler()->add_admin_notice(
+						sprintf(
+							/* translators: Placeholders: %1$s - opening <a> HTML link tag, %2$s - closing </a> HTML link tag */
+							__( 'Send more member emails, including welcome series, using the Jilt integration for Memberships. %1$sLearn more &raquo;%2$s.', 'woocommerce-memberships' ),
+							'<a href="https://jilt.com/go/memberships-email-notice">', '</a>'
+						),
+						'wc-memberships-emails-jilt-member-emails',
+						[
+							'notice_class'            => 'notice-info',
+							'dismissible'             => true,
+							'always_show_on_settings' => false,
+						]
+					);
+
+					break;
+				}
+			}
+		}
 
 		$this->message_handler->show_messages();
 	}

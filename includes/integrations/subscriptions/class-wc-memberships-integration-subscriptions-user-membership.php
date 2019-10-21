@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -280,7 +280,7 @@ class WC_Memberships_Integration_Subscriptions_User_Membership extends \WC_Membe
 	 *
 	 * This may correspond to a subscription early renewal URl for subscription-linked memberships.
 	 *
-	 * @since 1.13.1-dev.1
+	 * @since 1.14.0
 	 *
 	 * @return string URL
 	 */
@@ -305,7 +305,7 @@ class WC_Memberships_Integration_Subscriptions_User_Membership extends \WC_Membe
 	/**
 	 * Checks whether the user membership can be renewed early by the user.
 	 *
-	 * @since 1.13.1-dev.1
+	 * @since 1.14.0
 	 *
 	 * @return bool
 	 */
@@ -619,7 +619,7 @@ class WC_Memberships_Integration_Subscriptions_User_Membership extends \WC_Membe
 	 * @see \WC_Memberships_User_Memberships::trigger_expiration_events()
 	 * @see \WC_Memberships_Integration_Subscriptions::update_related_membership_status()
 	 *
-	 * @since 1.13.1-dev.1
+	 * @since 1.14.0
 	 *
 	 * @param int|null $end_timestamp membership end date timestamp: when empty (unlimited membership), it will just clear any existing scheduled event
 	 */

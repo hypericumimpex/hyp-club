@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -117,39 +117,18 @@ class WC_Memberships_Integration_Subscriptions_Admin {
 
 		?><br>
 		<span class="wc-memberships-edit-subscription-link-field">
-
-			<?php if ( Framework\SV_WC_Plugin_Compatibility::is_wc_version_gte_3_0() ) : ?>
-
-				<select
-					class="sv-wc-enhanced-search"
-					id="_subscription_id"
-					name="_subscription_id"
-					data-action="wc_memberships_edit_membership_subscription_link"
-					data-nonce="<?php echo wp_create_nonce( 'edit-membership-subscription-link' ); ?>"
-					data-placeholder="<?php esc_attr_e( 'Link to a Subscription or keep empty to leave unlinked', 'woocommerce-memberships' ); ?>"
-					data-allow_clear="true">
-					<?php if ( $subscription instanceof \WC_Subscription ) : ?>
-						<option value="<?php echo $subscription_id; ?>"><?php echo $subscription_id; ?></option>
-					<?php endif; ?>
-				</select>
-
-			<?php else : ?>
-
-				<input
-					type="hidden"
-					class="sv-wc-enhanced-search"
-					id="_subscription_id"
-					name="_subscription_id"
-					data-action="wc_memberships_edit_membership_subscription_link"
-					data-nonce="<?php echo wp_create_nonce( 'edit-membership-subscription-link' ); ?>"
-					data-placeholder="<?php esc_attr_e( 'Link to a Subscription or keep empty to leave unlinked', 'woocommerce-memberships' ); ?>"
-					data-allow_clear="true"
-					data-selected="<?php echo esc_html( current( $selected ) ); ?>"
-					value="<?php echo esc_attr( $subscription_id ); ?>"
-				/>
-
-			<?php endif; ?>
-
+			<select
+				class="sv-wc-enhanced-search"
+				id="_subscription_id"
+				name="_subscription_id"
+				data-action="wc_memberships_edit_membership_subscription_link"
+				data-nonce="<?php echo wp_create_nonce( 'edit-membership-subscription-link' ); ?>"
+				data-placeholder="<?php esc_attr_e( 'Link to a Subscription or keep empty to leave unlinked', 'woocommerce-memberships' ); ?>"
+				data-allow_clear="true">
+				<?php if ( $subscription instanceof \WC_Subscription ) : ?>
+					<option value="<?php echo $subscription_id; ?>"><?php echo $subscription_id; ?></option>
+				<?php endif; ?>
+			</select>
 		</span>
 		<?php
 

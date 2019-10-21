@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -354,14 +354,6 @@ class WC_Memberships_Grant_Retroactive_Access extends \WC_Memberships_Job_Handle
 
 		if ( ! empty( $plan_product_ids ) ) {
 
-			// backwards compatible WC core filtering of paid statuses
-			if ( Framework\SV_WC_Plugin_Compatibility::is_wc_version_gte_3_0() ) {
-				$paid_statuses = wc_get_is_paid_statuses();
-			} else {
-				/* replicates core WooCommerce filter that didn't exist prior to version 3.0 to mark paid order statuses */
-				$paid_statuses = apply_filters( 'woocommerce_order_is_paid_statuses', array( 'completed', 'processing' ) );
-			}
-
 			/**
 			 * Filters the array of valid order statuses that grant access.
 			 *
@@ -372,7 +364,7 @@ class WC_Memberships_Grant_Retroactive_Access extends \WC_Memberships_Job_Handle
 			 * @param array $valid_order_statuses_for_grant array of order statuses
 			 * @param \WC_Memberships_Membership_Plan $membership_plan the associated membership plan object
 			 */
-			$statuses = (array) apply_filters( 'wc_memberships_grant_access_from_existing_purchase_order_statuses', $paid_statuses, $membership_plan );
+			$statuses = (array) apply_filters( 'wc_memberships_grant_access_from_existing_purchase_order_statuses', wc_get_is_paid_statuses(), $membership_plan );
 
 			if ( ! empty( $statuses ) ) {
 

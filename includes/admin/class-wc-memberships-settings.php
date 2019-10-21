@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -133,21 +133,13 @@ class WC_Settings_Memberships extends \WC_Settings_Page {
 
 			$legend  = '<p>' . __( 'Customize restriction and discount messages displayed to non-members and members. Basic HTML is allowed. You can also use the following merge tags:', 'woocommerce-memberships' ) . '</p>';
 
-			$legend_keys = array(
-				/* translators: Placeholder: %s shows a message merge tag to be used */
-				'<strong><code>{products}</code></strong>'  => __( '%s automatically inserts the product(s) needed to gain access.', 'woocommerce-memberships' ),
-				/* translators: Placeholder: %s shows a message merge tag to be used */
-				'<strong><code>{date}</code></strong>'      => __( '%s inserts the date when the member will gain access to delayed content.', 'woocommerce-memberships' ),
-				/* translators: Placeholder: %s shows a message merge tag to be used */
-				'<strong><code>{discount}</code></strong>'  => __( '%s inserts the highest product discount obtainable by becoming a member.', 'woocommerce-memberships' ),
-				/* translators: Placeholder: %s shows a message merge tag to be used */
-				'<strong><code>{login_url}</code></strong>' => __( '%s inserts the URL to the "My Account" page with the login form.', 'woocommerce-memberships' ),
-				/* translators: Placeholder: %s shows a message merge tag to be used */
-				'<strong><code>{login}</code></strong>'     => __( '%s inserts a login link to the "My Account" page with the login form.', 'woocommerce-memberships' ),
-			);
+			$legend .= '<ul>';
 
-			foreach ( $legend_keys as $merge_tag => $instruction ) {
-				$legend .= '<li>' . sprintf( $instruction, $merge_tag ) . '</li>';
+			foreach ( \WC_Memberships_User_Messages::get_available_merge_tags( true ) as $merge_tag => $help_text ) {
+
+				$merge_tag = "<strong><code>{{$merge_tag}}</code></strong>";
+
+				$legend .= '<li>' . sprintf( $help_text, $merge_tag ) . '</li>';
 			}
 
 			$legend .= '</ul>';

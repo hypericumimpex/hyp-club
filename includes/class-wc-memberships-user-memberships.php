@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -142,7 +142,7 @@ class WC_Memberships_User_Memberships {
 
 		// bail out if a plan cannot be found before setting a new user membership
 		if ( ! wc_memberships_get_membership_plan( $args['plan_id'] ) ) {
-			/* translators: Placeholder: %s - membership plan ID */
+			/* translators: Placeholder: %d - membership plan ID */
 			throw new Framework\SV_WC_Plugin_Exception( sprintf( __( 'Cannot create User Membership: Membership Plan with ID %d does not exist', 'woocommerce-memberships' ), (int) $args['plan_id'] ) );
 		}
 
@@ -170,7 +170,7 @@ class WC_Memberships_User_Memberships {
 		// this shouldn't happen, yet ensure $user_membership isn't null
 		if ( ! $user_membership instanceof \WC_Memberships_User_Membership ) {
 			/* translators: Placeholder: %s - membership plan ID */
-			throw new Framework\SV_WC_Plugin_Exception( sprintf( __( 'Cannot create User Membership "%s".', 'woocommerce-memberships' ), $user_membership_id ) );
+			throw new Framework\SV_WC_Plugin_Exception( sprintf( __( 'Cannot create User Membership #%d.', 'woocommerce-memberships' ), $user_membership_id ) );
 		}
 
 		// save/update product id that granted access

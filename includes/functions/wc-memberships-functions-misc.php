@@ -23,7 +23,7 @@
 
 defined( 'ABSPATH' ) or exit;
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 
 /**
@@ -32,13 +32,15 @@ use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
  * @since 1.6.0
  *
  * @param string[] $items array to list items of
- * @param string|void $conjunction optional, the word to join together the penultimate and last item. Defaults to 'or'
- * @return string e.g. "item1, item2, item3 or item4"
+ * @param string $conjunction optional, the word to join together the penultimate and last item - use 'and' or 'or', or pass a translatable string alternative
+ * @return string e.g. "item1, item2, item3 or item4" -- "item1, item2, item3 and item4"
  */
 function wc_memberships_list_items( $items, $conjunction = '' ) {
 
-	if ( ! $conjunction ) {
+	if ( ! $conjunction || 'or' === $conjunction ) {
 		$conjunction = __( 'or', 'woocommerce-memberships' );
+	} elseif ( 'and' === $conjunction ) {
+		$conjunction = __( 'and', 'woocommerce-memberships' );
 	}
 
 	array_splice( $items, -2, 2, implode( ' ' . $conjunction . ' ', array_slice( $items, -2, 2 ) ) );
@@ -94,7 +96,7 @@ function wc_memberships_get_content_meta( $object, $meta, $single = true ) {
 	if ( $object instanceof \WC_Product && in_array( $post_type, array( 'product', 'product_variation' ), true ) ) {
 
 		if ( 'product_variation' === $post_type ) {
-			$product_id = Framework\SV_WC_Plugin_Compatibility::is_wc_version_gte_3_0() ? $object->get_parent_id() : $object->id;
+			$product_id = $object->get_parent_id();
 		} else {
 			$product_id = $object->get_id();
 		}
@@ -142,7 +144,7 @@ function wc_memberships_set_content_meta( $object, $meta_key, $meta_value ) {
 	if ( $object instanceof \WC_Product && in_array( $post_type, array( 'product', 'product_variation' ), true ) ) {
 
 		if ( 'product_variation' === $post_type ) {
-			$product_id = Framework\SV_WC_Plugin_Compatibility::is_wc_version_gte_3_0() ? $object->get_parent_id() : $object->id;
+			$product_id = $object->get_parent_id();
 		} else {
 			$product_id = $object->get_id();
 		}
@@ -187,7 +189,7 @@ function wc_memberships_delete_content_meta( $object, $meta_key ) {
 	if ( $object instanceof \WC_Product && in_array( $post_type, array( 'product', 'product_variation' ), true ) ) {
 
 		if ( 'product_variation' === $post_type ) {
-			$product_id = Framework\SV_WC_Plugin_Compatibility::is_wc_version_gte_3_0() ? $object->get_parent_id() : $object->id;
+			$product_id = $object->get_parent_id();
 		} else {
 			$product_id = $object->get_id();
 		}

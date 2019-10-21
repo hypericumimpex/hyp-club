@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -195,8 +195,13 @@ class WC_Memberships_Integration_Subscriptions_Frontend {
 
 		$next_bill_on = null;
 
-		if ( $user_membership instanceof \WC_Memberships_Integration_Subscriptions_User_Membership ) {
-			$next_bill_on = $user_membership->get_next_bill_on_local_date( wc_date_format() );
+		if ( $user_membership instanceof \WC_Memberships_User_Membership ) {
+
+			$user_membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( $user_membership->post );
+
+			if ( $user_membership->has_subscription() ) {
+				$next_bill_on = $user_membership->get_next_bill_on_local_date( wc_date_format() );
+			}
 		}
 
 		echo null === $next_bill_on ? esc_html__( 'N/A', 'woocommerce-memberships' ) : $next_bill_on;

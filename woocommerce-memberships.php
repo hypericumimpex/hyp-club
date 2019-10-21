@@ -5,23 +5,22 @@
  * Description: Sell memberships that provide access to restricted content, products, discounts, and more!
  * Author: Romeo C.
  * Author URI: https://github.com/hypericumimpex/
- * Version: 1.13.2
+ * Version: 1.15.3
  * Text Domain: woocommerce-memberships
  * Domain Path: /i18n/languages/
  *
- * Copyright: (c) 2014-2018 Hypericum Impex (info@hypericumimpex.ro)
+ * Copyright: (c) 2014-2019 SkyVerge, Inc. (info@skyverge.com)
  *
  * License: GNU General Public License v3.0
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  *
- * @package   Memberships
- * @author    Romeo C.
- * @copyright Copyright (c) 2014-2018, Hypericum Impex.
+ * @author    SkyVerge
+ * @copyright Copyright (c) 2014-2019, SkyVerge, Inc.
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  *
  * Woo: 958589:9288e7609ad0b487b81ef6232efa5cfc
- * WC requires at least: 2.6.14
- * WC tested up to: 3.6.5
+ * WC requires at least: 3.0.9
+ * WC tested up to: 3.7.1
  */
 
 defined( 'ABSPATH' ) or exit;
@@ -52,16 +51,16 @@ class WC_Memberships_Loader {
 
 
 	/** minimum PHP version required by this plugin */
-	const MINIMUM_PHP_VERSION = '5.4.0';
+	const MINIMUM_PHP_VERSION = '5.6.0';
 
 	/** minimum WordPress version required by this plugin */
 	const MINIMUM_WP_VERSION = '4.4';
 
 	/** minimum WooCommerce version required by this plugin */
-	const MINIMUM_WC_VERSION = '2.6.14';
+	const MINIMUM_WC_VERSION = '3.0.9';
 
 	/** SkyVerge plugin framework version used by this plugin */
-	const FRAMEWORK_VERSION = '5.4.0';
+	const FRAMEWORK_VERSION = '5.4.1';
 
 	/** the plugin name, for displaying notices */
 	const PLUGIN_NAME = 'WooCommerce Memberships';

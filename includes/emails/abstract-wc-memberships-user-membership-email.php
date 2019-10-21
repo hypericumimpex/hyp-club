@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -46,6 +46,29 @@ abstract class WC_Memberships_User_Membership_Email extends \WC_Email {
 
 	/** @var string rescheduling events action description (optional, used by some emails) */
 	protected $reschedule_description = '';
+
+	/** @var bool whether the contents of the email can be edited from a Membership Plan */
+	protected $plan_editable = false;
+
+
+	/**
+	 * Membership email constructor.
+	 *
+	 * @since 1.14.0
+	 */
+	public function __construct() {
+
+		if ( $this->plan_editable ) {
+
+			$this->description .= ' ' . sprintf(
+				/* translators: Placeholders: %1$s - Opening <a> HTML tag, %2$s - Closing </a> HTML tag */
+				__( 'You can edit the content of this email for %1$seach one of your plans%2$s individually.', 'woocommerce-memberships' ),
+				'<a href="' . esc_url( admin_url( 'edit.php?post_type=wc_membership_plan' )  ) . '">', '</a>'
+			);
+		}
+
+		parent::__construct();
+	}
 
 
 	/**

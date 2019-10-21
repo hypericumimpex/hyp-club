@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -118,9 +118,6 @@ class WC_Memberships_Integrations {
 		if ( $this->is_user_switching_active() ) {
 			$this->user_switching = wc_memberships()->load_class( '/includes/integrations/user-switching/class-wc-memberships-integration-user-switching.php', 'WC_Memberships_Integration_User_Switching' );
 		}
-
-		// print a notice in admin if an incompatible plugin is found
-		$this->handle_incompatible_plugins();
 	}
 
 
@@ -259,6 +256,19 @@ class WC_Memberships_Integrations {
 
 
 	/**
+	 * Checks if Jilt for WooCommerce is active.
+	 *
+	 * @since 1.14.0
+	 *
+	 * @return bool
+	 */
+	public function is_jilt_active() {
+
+		return wc_memberships()->is_plugin_active( 'jilt-for-woocommerce.php' );
+	}
+
+
+	/**
 	 * Checks if MPC is active.
 	 *
 	 * @since 1.8.8
@@ -304,44 +314,6 @@ class WC_Memberships_Integrations {
 	 */
 	public function is_user_switching_active() {
 		return wc_memberships()->is_plugin_active( 'user-switching.php' );
-	}
-
-
-	/**
-	 * Handles notices when incompatible plugins are found active along with Memberships.
-	 *
-	 * @since 1.9.4
-	 */
-	private function handle_incompatible_plugins() {
-
-		if ( is_admin() ) {
-
-			$memberships          = wc_memberships();
-			$found_plugins        = array();
-			$incompatible_plugins = array(
-				'post-type-switcher' => 'Post Type Switcher',
-			);
-
-			foreach ( $incompatible_plugins as $plugin_main_file => $plugin_name ) {
-				if ( $memberships->is_plugin_active( "{$plugin_main_file}.php" ) ) {
-					$found_plugins[ $plugin_main_file ] = '<strong>' . $plugin_name . '</strong>';
-				}
-			}
-
-			if ( ! empty( $found_plugins ) ) {
-
-				$memberships->get_admin_notice_handler()->add_admin_notice(
-					/* translators: Placeholders: %1$s - plugin or list of plugins, %2$s - opening HTML <a> link tag, %3%s - closing </a> HTML link tag */
-					sprintf( _n( 'It looks like you have the following plugin installed which is not compatible with WooCommerce Memberships: %1$s. You may run into issues with Memberships while this is active. Please consult the %2$sdocumentation%3$s for more information.', 'It looks like you have the following plugins installed which are not compatible with Memberships: %1$s. You may run into issues with Memberships while these are active. Please consult the %2$sdocumentation%3$s for more information.', count( $found_plugins ), 'woocommerce-memberships' ),
-						wc_memberships_list_items( $found_plugins, __( 'and', 'woocommerce-memberships' ) ),
-						'<a href="' . $memberships->get_documentation_url() . '">',
-						'</a>'
-					),
-					'woocommerce-memberships-incompatible-plugins-' . implode( '-', array_keys( $found_plugins ) ),
-					array( 'notice_class' => 'error' )
-				);
-			}
-		}
 	}
 
 

@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -36,7 +36,7 @@ class WC_Memberships extends Framework\SV_WC_Plugin  {
 
 
 	/** plugin version number */
-	const VERSION = '1.13.2';
+	const VERSION = '1.15.3';
 
 	/** @var \WC_Memberships single instance of this plugin */
 	protected static $instance;
@@ -89,6 +89,9 @@ class WC_Memberships extends Framework\SV_WC_Plugin  {
 	/** @var \SkyVerge\WooCommerce\Memberships\API\Webhooks instance */
 	private $webhooks;
 
+	/** @var \SkyVerge\WooCommerce\Memberships\Blocks instance */
+	private $blocks;
+
 
 	/**
 	 * Initializes the plugin.
@@ -100,14 +103,15 @@ class WC_Memberships extends Framework\SV_WC_Plugin  {
 		parent::__construct(
 			self::PLUGIN_ID,
 			self::VERSION,
-			array(
+			[
 				'text_domain'  => 'woocommerce-memberships',
-				'dependencies' => array(
-					'php_extensions' => array(
+				'dependencies' => [
+					'php_extensions' => [
+						'dom',
 						'mbstring',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		add_action( 'init', array( $this, 'init_post_types' ) );
@@ -269,6 +273,9 @@ class WC_Memberships extends Framework\SV_WC_Plugin  {
 
 		// load integrations
 		$this->integrations = $this->load_class( '/includes/integrations/class-wc-memberships-integrations.php', 'WC_Memberships_Integrations' );
+
+		// Gutenberg blocks
+		$this->blocks = $this->load_class( '/includes/Blocks.php', '\\SkyVerge\\WooCommerce\\Memberships\\Blocks' );
 
 		// WP CLI support
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
@@ -549,6 +556,19 @@ class WC_Memberships extends Framework\SV_WC_Plugin  {
 		}
 
 		return $this->webhooks;
+	}
+
+
+	/**
+	 * Gets the Gutenberg Blocks instance.
+	 *
+	 * @since 1.15.0
+	 *
+	 * @return \SkyVerge\WooCommerce\Memberships\Blocks
+	 */
+	public function get_blocks_instance() {
+
+		return $this->blocks;
 	}
 
 
@@ -969,40 +989,6 @@ class WC_Memberships extends Framework\SV_WC_Plugin  {
 		 * @param \WC_Memberships_User_Membership $user_membership user membership being exported
 		 */
 		return (array) apply_filters( 'wc_memberships_privacy_export_user_membership_personal_data', $personal_data, $user_membership );
-	}
-
-
-	/** Deprecated methods ******************************************************/
-
-
-	/**
-	 * Backwards compatibility handler for deprecated methods.
-	 *
-	 * TODO remove deprecated methods when they are at least 3 minor versions older (as in x.Y.z semantic versioning) {FN 2017-06-23}
-	 *
-	 * @since 1.6.0
-	 *
-	 * @param string $method method called
-	 * @param void|string|array|mixed $args optional argument(s)
-	 * @return null|void|mixed
-	 */
-	public function __call( $method, $args ) {
-
-		$deprecated = "WC_Memberships::{$method}()";
-
-		switch ( $method ) {
-
-			/** @deprecated since 1.11.0 - remove by version 1.14.0 */
-			case 'init' :
-			case 'maybe_activate' :
-			case 'deactivate' :
-				_deprecated_function( $deprecated, '1.11.0' );
-				return null;
-		}
-
-		// you're probably doing it wrong...
-		trigger_error( 'Call to undefined method ' . __CLASS__ . '::' . $method, E_USER_ERROR );
-		return null;
 	}
 
 

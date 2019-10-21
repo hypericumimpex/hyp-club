@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -243,23 +243,14 @@ class WC_Memberships_Admin_Membership_Plan_Rules {
 
 							if ( $product ) {
 
-								if ( Framework\SV_WC_Plugin_Compatibility::is_wc_version_lt_3_0() ) {
-
-									if ( isset( $product->post ) && in_array( $product->post->post_type, array( 'product', 'product_variation' ), true ) ) {
-										$label = strip_tags( $include_id ? $product->get_formatted_name() : $product->get_name() );
-									}
-
+								if ( $product->is_type( 'variation' ) ) {
+									$post_data = get_post( $product->get_parent_id() );
 								} else {
+									$post_data = get_post( $product->get_id() );
+								}
 
-									if ( $product->is_type( 'variation' ) ) {
-										$post_data = get_post( $product->get_parent_id() );
-									} else {
-										$post_data = get_post( $product->get_id() );
-									}
-
-									if ( isset( $post_data->post_type ) && in_array( $post_data->post_type, array( 'product', 'product_variation' ), true ) ) {
-										$label = strip_tags( $include_id ? $product->get_formatted_name() : $product->get_name() );
-									}
+								if ( isset( $post_data->post_type ) && in_array( $post_data->post_type, array( 'product', 'product_variation' ), true ) ) {
+									$label = strip_tags( $include_id ? $product->get_formatted_name() : $product->get_name() );
 								}
 							}
 

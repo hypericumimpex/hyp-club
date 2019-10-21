@@ -23,7 +23,7 @@
 
 namespace SkyVerge\WooCommerce\Memberships;
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -80,12 +80,14 @@ class REST_API extends Framework\REST_API {
 	 */
 	public function includes() {
 
-		// ensure that WC REST API base abstracts extended by Memberships are available even while processing hooks
-		if (      Framework\SV_WC_Plugin_Compatibility::is_wc_version_gte( '3.6.0' )
-		     && ! did_action( 'rest_api_init' )
-		     && ! class_exists( 'WC_REST_Posts_Controller', false ) ) {
-
-			WC()->api->rest_api_includes();
+		// ensure that WC REST API base abstracts extended by Memberships are available also while processing webhooks
+		if (
+			     Framework\SV_WC_Plugin_Compatibility::is_wc_version_gte( '3.6.0' )
+			&&   Framework\SV_WC_Plugin_Compatibility::is_wc_version_lt( '3.7.0' )
+			&& ! did_action( 'rest_api_init' )
+			&& ! class_exists( 'WC_REST_Posts_Controller', false )
+		) {
+			wc()->api->rest_api_includes();
 		}
 
 		require_once( $this->get_plugin()->get_plugin_path() . '/includes/api/abstract-wc-memberships-rest-api-controller.php' );

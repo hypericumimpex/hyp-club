@@ -98,27 +98,15 @@ class Learndash {
 			}
 
 			$message_code = "content_{$message_type}";
-			$args         = array(
+			$args         = [
 				'access_time' => wc_memberships()->get_capabilities_instance()->get_user_access_start_time_for_post( $user_id, $post_id ),
 				'code'        => $message_code,
-				'context'     => 'notice', // use this to avoid recursion issues with excerpts from applying the_content filter
 				'post'        => $post,
 				'post_id'     => $post_id,
-			);
+				'use_excerpt' => false,
+			];
 
-			$message = \WC_Memberships_User_Messages::get_message_html( $message_code, $args );
-
-			ob_start();
-
-			?>
-			<div class="woocommerce">
-				<div class="woocommerce-info wc-memberships-restriction-message wc-memberships-message wc-memberships-content-restricted-message">
-					<?php echo wp_kses_post( $message ); ?>
-				</div>
-			</div>
-			<?php
-
-			$content = ob_get_clean();
+			$content = \WC_Memberships_User_Messages::get_message_html( $message_code, $args );
 		}
 
 		return $content;

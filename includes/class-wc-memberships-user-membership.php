@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -333,20 +333,52 @@ class WC_Memberships_User_Membership {
 	 *
 	 * @since 1.6.2
 	 *
-	 * @param string $date a date in Y-m-d H:i:s MySQL format, leave empty to set to "now"
+	 * @param int|string $date a date in Y-m-d H:i:s MySQL format, or timestamp (assumed UTC), leave empty to set to "now"
 	 * @return bool success
 	 */
 	public function set_start_date( $date = '' ) {
 
-		$start_date = '' !== $date ? wc_memberships_parse_date( $date, 'mysql' ) : false;
+		$start_date = $start_timestamp = null;
 
-		if ( ! $start_date ) {
-			$start_date = date( 'Y-m-d H:i:s', current_time( 'timestamp', true ) );
+		if ( ! empty( $date ) ) {
+			$start_date      = wc_memberships_parse_date( $date, 'mysql' );
+			$start_timestamp = $start_date ? strtotime( $start_date ) : null;
 		}
 
-		$success = (bool) update_post_meta( $this->id, $this->start_date_meta, $start_date );
+		if ( ! $start_date || ! $start_timestamp ) {
+			$start_timestamp = current_time( 'timestamp', true );
+			$start_date      = date( 'Y-m-d H:i:s', $start_timestamp );
+		}
 
-		if ( ! $this->has_status( 'delayed' ) && strtotime( 'today', strtotime( $start_date ) ) > current_time( 'timestamp', true ) ) {
+		$plan = $this->get_plan();
+
+		// if the plan is with fixed dates, ensure the start date begins at midnight of the start day
+		if ( $plan && $plan->is_access_length_type( 'fixed' )  ) {
+
+			try {
+
+				$utc_timezone   = new \DateTimeZone( 'UTC' );
+				$local_timezone = new \DateTimeZone( wc_timezone_string() );
+				$start_datetime = new \DateTime( date( 'c', (int) $start_timestamp ), $utc_timezone );
+
+				// since the input date is in UTC, convert the date to local timezone, set to beginning of the day, then convert back to UTC for storage purposes
+				$start_datetime->setTimezone( $local_timezone );
+				$start_datetime->setTime( 0, 0 );
+				$start_datetime->setTimezone( $utc_timezone );
+
+				$start_date      = $start_datetime->format( 'Y-m-d H:i:s' );
+				$start_timestamp = $start_datetime->getTimestamp();
+
+			} catch ( \Exception $e ) {
+
+				// in case of DateTime errors, just use the start date as is but issue a warning
+				trigger_error( sprintf( 'Unable to set start date for User Membership #%d: %s', $this->get_id(), $e->getMessage() ), E_USER_WARNING );
+			}
+		}
+
+		$success = $start_date && (bool) update_post_meta( $this->id, $this->start_date_meta, $start_date );
+
+		if ( ! $this->has_status( 'delayed' ) && strtotime( 'today', (int) $start_timestamp ) > current_time( 'timestamp', true ) ) {
 
 			$this->update_status( 'delayed' );
 		}
@@ -425,14 +457,36 @@ class WC_Memberships_User_Membership {
 
 		if ( ! empty( $end_timestamp ) ) {
 
-			// for fixed date memberships set end date to the end of the day
-			$end_timestamp = $this->get_plan() && $this->plan->is_access_length_type( 'fixed' ) ? wc_memberships_adjust_date_by_timezone( strtotime( 'midnight', $end_timestamp ), 'timestamp', wc_timezone_string() ) : $end_timestamp;
+			$plan = $this->get_plan();
+
+			// if the plan is with fixed dates, ensure the end date is set at midnight of the end day
+			if ( $plan && $plan->is_access_length_type( 'fixed' )  ) {
+
+				try {
+
+					$utc_timezone   = new \DateTimeZone( 'UTC' );
+					$local_timezone = new \DateTimeZone( wc_timezone_string() );
+					$end_datetime   = new \DateTime( date( 'c', $end_timestamp ), $utc_timezone );
+
+					// since the input date is in UTC, convert the date to local timezone, set to end of the day, then convert back to UTC for storage purposes
+					$end_datetime->setTimezone( $local_timezone );
+					$end_datetime->setTime( 0, 0 );
+					$end_datetime->setTimezone( $utc_timezone );
+
+					$end_timestamp = $end_datetime->getTimestamp();
+
+				} catch ( \Exception $e ) {
+
+					// in case of DateTime errors, just use the end date timestamp as is but issue a warning
+					trigger_error( sprintf( 'Unable to end start date for User Membership #%d: %s', $this->get_id(), $e->getMessage() ), E_USER_WARNING );
+				}
+			}
 
 			$end_date = date( 'Y-m-d H:i:s', (int) $end_timestamp );
 		}
 
 		// update end date in post meta
-		$success = (bool) update_post_meta( $this->id, $this->end_date_meta, $end_date );
+		$success = (bool) update_post_meta( $this->id, $this->end_date_meta, $end_date ?: '' );
 
 		// set expiration scheduled events
 		$this->schedule_expiration_events( $end_timestamp );
@@ -1652,23 +1706,35 @@ class WC_Memberships_User_Membership {
 	 */
 	public function get_products_for_renewal() {
 
-		$renewal_products = array();
-		$original_product = $this->get_product();
+		$renewal_products = [];
 
-		// make sure the original product is the first in array
-		if ( $original_product && $original_product->is_purchasable() ) {
+		// start off with the original product that granted access to put it at the beginning of the array
+		if ( $original_product = $this->get_product( true ) ) {
 
-			$renewal_products[ $original_product->get_id() ] = $original_product;
+			// ensure it is available for purchase
+			if ( $original_product->is_purchasable() && $original_product->is_in_stock() ) {
+
+				$renewal_products[ $original_product->get_id() ] = $original_product;
+
+			// otherwise, if a variation is not available, try with the parent variable
+			} elseif ( $original_product->is_type( 'variation' ) ) {
+
+				// do not simply get the parent from the variation, as it may not be a product that grants access, instead use the same method to see if it returns a parent
+				$parent_product = $this->get_product();
+
+				if ( $parent_product && $parent_product->is_purchasable() && $parent_product->is_in_stock() ) {
+
+					$renewal_products[ $parent_product->get_id() ] = $parent_product;
+				}
+			}
 		}
 
-		$plan = $this->get_plan();
+		// then, get as the other purchasable products that may grant access according to the plan settings
+		if ( $plan = $this->get_plan() ) {
 
-		// get all the other purchasable products according to the plan settings
-		if ( $plan && ( $products = $plan->get_products() ) ) {
+			foreach ( $plan->get_products() as $product_id => $product ) {
 
-			foreach ( $products as $product_id => $product ) {
-
-				if ( $product->is_purchasable() ) {
+				if ( ! array_key_exists( $product_id, $renewal_products ) && $product->is_purchasable() && $product->is_in_stock() ) {
 
 					$renewal_products[ $product_id ] = $product;
 				}

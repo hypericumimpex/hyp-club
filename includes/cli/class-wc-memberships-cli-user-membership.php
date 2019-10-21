@@ -161,7 +161,7 @@ class WC_Memberships_CLI_User_Membership extends \WC_Memberships_CLI_Command {
 				if ( $this->is_valid_membership_status( $data['status'] ) ) {
 					$status = $data['status'];
 				} else {
-					throw new \WC_CLI_Exception( 'woocommerce_memberships_invalid_status', sprintf( 'The status "%1$s" is not a valid User Membership status. Please use one of the following: %2$s', $data['status'], wc_memberships_list_items( $this->get_membership_status_keys() ) ) );
+					throw new \WC_CLI_Exception( 'woocommerce_memberships_invalid_status', sprintf( 'The status "%1$s" is not a valid User Membership status. Please use one of the following: %2$s', $data['status'], wc_memberships_list_items( $this->get_membership_status_keys(), 'or' ) ) );
 				}
 			}
 
@@ -309,7 +309,7 @@ class WC_Memberships_CLI_User_Membership extends \WC_Memberships_CLI_Command {
 				if ( $this->is_valid_membership_status( $data['status'] ) ) {
 					$status = $data['status'];
 				} else {
-					throw new \WC_CLI_Exception( 'woocommerce_memberships_invalid_status', sprintf( 'The status "%1$s" is not a valid User Membership status. Please use one of the following: %2$s', $data['status'], wc_memberships_list_items( $this->get_membership_status_keys() ) ) );
+					throw new \WC_CLI_Exception( 'woocommerce_memberships_invalid_status', sprintf( 'The status "%1$s" is not a valid User Membership status. Please use one of the following: %2$s', $data['status'], wc_memberships_list_items( $this->get_membership_status_keys(), 'or' ) ) );
 				}
 			}
 

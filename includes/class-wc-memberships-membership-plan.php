@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_0 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -46,6 +46,9 @@ class WC_Memberships_Membership_Plan {
 
 	/** @var \WP_Post Membership Plan post object */
 	public $post;
+
+	/** @var int[] array of IDs of products that grant access */
+	private $product_ids;
 
 	/** @var string access method meta */
 	protected $access_method_meta = '';
@@ -213,9 +216,12 @@ class WC_Memberships_Membership_Plan {
 	 */
 	public function get_product_ids() {
 
-		$product_ids = get_post_meta( $this->id, $this->product_ids_meta, true );
+		if ( null === $this->product_ids ) {
+			$this->product_ids = get_post_meta( $this->id, $this->product_ids_meta, true );
+			$this->product_ids = is_array( $this->product_ids ) ? array_unique( array_map( 'absint', $this->product_ids ) ) : [];
+		}
 
-		return is_array( $product_ids ) ? array_unique( array_map( 'absint', $product_ids ) ) : array();
+		return $this->product_ids;
 	}
 
 
@@ -229,7 +235,7 @@ class WC_Memberships_Membership_Plan {
 	 */
 	public function get_products( $exclude_subscriptions = false ) {
 
-		$products = array();
+		$products = [];
 
 		if ( $this->has_products() ) {
 
@@ -274,7 +280,7 @@ class WC_Memberships_Membership_Plan {
 			$product_ids = explode( ',', $product_ids );
 		}
 
-		$product_ids = array_map( 'intval', (array) $product_ids );
+		$product_ids = array_map( 'absint', (array) $product_ids );
 
 		// ensure all products are valid
 		foreach ( $product_ids as $index => $product_id ) {
@@ -289,7 +295,13 @@ class WC_Memberships_Membership_Plan {
 			$product_ids = array_merge( $this->get_product_ids(), $product_ids );
 		}
 
-		update_post_meta( $this->id, $this->product_ids_meta, array_unique( $product_ids ) );
+		$this->product_ids = array_unique( $product_ids );
+
+		if ( empty( $this->product_ids ) ) {
+			delete_post_meta( $this->id, $this->product_ids_meta );
+		} else {
+			update_post_meta( $this->id, $this->product_ids_meta, $this->product_ids );
+		}
 	}
 
 
@@ -304,6 +316,8 @@ class WC_Memberships_Membership_Plan {
 
 		if ( empty( $product_ids ) ) {
 
+			$this->product_ids = [];
+
 			delete_post_meta( $this->id, $this->product_ids_meta );
 
 		} else {
@@ -312,10 +326,16 @@ class WC_Memberships_Membership_Plan {
 				$product_ids = (array) $product_ids;
 			}
 
-			$remove_ids   = array_map( 'intval', $product_ids );
+			$remove_ids   = array_map( 'absint', $product_ids );
 			$existing_ids = $this->get_product_ids();
 
-			update_post_meta( $this->id, $this->product_ids_meta, array_diff( $existing_ids, $remove_ids ) );
+			$this->product_ids = array_diff( array_unique( $existing_ids ), array_unique( $remove_ids ) );
+
+			if ( empty( $this->product_ids ) ) {
+				delete_post_meta( $this->id, $this->product_ids_meta );
+			} else {
+				update_post_meta( $this->id, $this->product_ids_meta, $this->product_ids );
+			}
 		}
 	}
 
@@ -329,9 +349,7 @@ class WC_Memberships_Membership_Plan {
 	 */
 	public function has_products() {
 
-		$product_ids = $this->get_product_ids();
-
-		return ! empty( $product_ids );
+		return ! empty( $this->get_product_ids() );
 	}
 
 
@@ -344,7 +362,8 @@ class WC_Memberships_Membership_Plan {
 	 * @return bool
 	 */
 	public function has_product( $product_id ) {
-		return is_numeric( $product_id ) ? in_array( (int) $product_id, $this->get_product_ids(), true ) : false;
+
+		return is_numeric( $product_id ) && in_array( (int) $product_id, $this->get_product_ids(), true );
 	}
 
 
@@ -1751,7 +1770,7 @@ class WC_Memberships_Membership_Plan {
 			}
 
 			if ( ! empty( $child_discounts ) ) {
-				$member_discount = wc_memberships_list_items( $child_discounts );
+				$member_discount = wc_memberships_list_items( $child_discounts, 'or' );
 			}
 
 		} elseif ( ! empty( $member_discount ) && is_numeric( $member_discount ) ) {
