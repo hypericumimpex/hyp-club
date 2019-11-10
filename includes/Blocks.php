@@ -23,7 +23,7 @@
 
 namespace SkyVerge\WooCommerce\Memberships;
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined('ABSPATH') or exit;
 
@@ -188,15 +188,17 @@ class Blocks {
 	 */
 	private function register_blocks_scripts_styles() {
 
+		$blocks_handle = 'wc-memberships-blocks';
+
 		// register styles shared by all blocks
-		wp_register_style( 'wc-memberships-blocks', wc_memberships()->get_plugin_url() . '/assets/css/blocks/wc-memberships-blocks.min.css', [ 'wc-block-editor', 'wc-block-style' ], \WC_Memberships::VERSION );
+		wp_register_style( $blocks_handle, wc_memberships()->get_plugin_url() . '/assets/css/blocks/wc-memberships-blocks.min.css', [ 'wc-block-editor', 'wc-block-style' ], \WC_Memberships::VERSION );
 
 		// register scripts shared by all blocks
-		wp_register_script( 'wc-memberships-blocks', wc_memberships()->get_plugin_url() . '/assets/js/blocks/wc-memberships-blocks.min.js', $this->get_script_dependencies(), \WC_Memberships::VERSION, true );
-		wp_localize_script( 'wc-memberships-blocks', 'wc_memberships_blocks', $this->get_script_variables() );
+		wp_register_script( $blocks_handle, wc_memberships()->get_plugin_url() . '/assets/js/blocks/wc-memberships-blocks.min.js', $this->get_script_dependencies(), \WC_Memberships::VERSION, true );
+		wp_localize_script( $blocks_handle, 'wc_memberships_blocks', $this->get_script_variables() );
 
 		// configure localization files location
-		wp_set_script_translations( 'wc-memberships-blocks', 'woocommerce-memberships', wc_memberships()->get_plugin_path() . '/i18n/languages/blocks' );
+		wp_set_script_translations( $blocks_handle, 'woocommerce-memberships', wc_memberships()->get_plugin_path() . '/i18n/languages/blocks' );
 	}
 
 

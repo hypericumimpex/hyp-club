@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -863,29 +863,28 @@ class WC_Memberships_Meta_Box_Membership_Plan_Data extends \WC_Memberships_Meta_
 
 		wc_memberships()->get_admin_notice_handler()->add_admin_notice(
 			/* translators: %1$s - line break, %2$s - opening <a> link tag, %3$s - closing </a> tag */
-			sprintf( __( 'When you add a restriction rule for content, it will no longer be public on your site. By adding a rule for a page, post, or taxonomy, it will become restricted, and can only be accessed by members of this plan, or by members of another plan that grants access to the content.%1$sLearn more about %2$srestriction rules in the documentation%3$s.', 'woocommerce-memberships' ),
-				'<br />',
-				'<em><a href="https://docs.woocommerce.com/document/woocommerce-memberships-restrict-content/">',
-				'</a></em>'
+			sprintf( __( 'When you add a restriction rule for content, it will no longer be public on your site. By adding a rule for a page, post, or taxonomy, it will become restricted, and can only be accessed by members of this plan, or by members of another plan that grants access to the content. Learn more about %1$srestriction rules in the documentation%2$s.', 'woocommerce-memberships' ),
+				'<a href="https://docs.woocommerce.com/document/woocommerce-memberships-restrict-content/">', '</a>'
 			),
 			'restrict-content-notice',
-			array(
+			[
 				'always_show_on_settings' => false,
 				'notice_class'            => $notice_classes . ' ' . 'js-memberships-restrict-content-notice',
-			)
+			]
 		);
 
 		wc_memberships()->get_admin_notice_handler()->add_admin_notice(
 			/* translators: these %s placeholders consist of pairs of opening a closing <strong> HTML tags highlighting text */
-			sprintf( __( 'When you add a %1$sviewing%2$s restriction rule for a product, it will no longer be public on your site, and can only be accessed by members of this plan, or by members of another plan that grants access to the product. By adding a %3$spurchasing%4$s restriction rule, the product can be viewed publicly, but only purchased by members.', 'woocommerce-memberships' ),
+			sprintf( __( 'When you add a %1$sviewing%2$s restriction rule for a product, it will no longer be public on your site, and can only be accessed by members of this plan, or by members of another plan that grants access to the product. By adding a %3$spurchasing%4$s restriction rule, the product can be viewed publicly, but only purchased by members. Learn more about %5$srestriction rules in the documentation%6$s.', 'woocommerce-memberships' ),
 				'<strong>', '</strong>',
-				'<strong>',	'</strong>'
+				'<strong>', '</strong>',
+				'<a href="https://docs.woocommerce.com/document/woocommerce-memberships-restrict-content/">', '</a>'
 			),
 			'restrict-products-notice',
-			array(
+			[
 				'always_show_on_settings' => false,
 				'notice_class'            => $notice_classes . ' ' . 'js-memberships-restrict-products-notice',
-			)
+			]
 		);
 	}
 

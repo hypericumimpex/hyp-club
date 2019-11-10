@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -77,7 +77,7 @@ class WC_Memberships_Posts_Restrictions {
 		add_filter( 'get_next_post_where',     array( $this, 'exclude_restricted_adjacent_posts' ), 1, 5 );
 
 		// redirect to restricted content or product upon login
-		add_filter( 'woocommerce_login_redirect', array( $this, 'redirect_to_member_content_upon_login' ), 40 );
+		add_filter( 'woocommerce_login_redirect', [ $this, 'redirect_to_member_content_upon_login' ], 40 );
 	}
 
 
@@ -390,6 +390,8 @@ class WC_Memberships_Posts_Restrictions {
 	 * Redirects user to restricted content after successful login.
 	 *
 	 * @see \WC_Memberships_Posts_Restrictions::redirect_restricted_content()
+	 * This callback must have a higher priority than custom login redirects:
+	 * @see \WC_Memberships_Frontend::redirect_to_page_upon_login()
 	 *
 	 * @internal
 	 *

@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -237,7 +237,7 @@ class WC_Memberships_Admin_Membership_Plans {
 		if ( $product instanceof \WC_Product ) {
 
 			if ( $product->is_type( 'variation' ) ) {
-				$product_link = get_edit_post_link( Framework\SV_WC_Product_Compatibility::get_parent( $product ) );
+				$product_link = get_edit_post_link( $product->get_parent_id( 'edit' ) );
 			} else {
 				$product_link = get_edit_post_link( $product->get_id() );
 			}
@@ -628,40 +628,6 @@ class WC_Memberships_Admin_Membership_Plans {
 		}
 
 		update_option( 'wc_memberships_rules', array_merge( $rules, $new_rules ) );
-	}
-
-
-	/**
-	 * Grants access to a membership plan.
-	 *
-	 * TODO remove this method by version 2.0.0 or by October 2019 {FN 2018-02-13}
-	 *
-	 * @internal
-	 *
-	 * @since 1.0.0
-	 * @deprecated since 1.10.0
-	 */
-	public function grant_access_to_membership() {
-
-		_deprecated_function( 'WC_Memberships_Admin_Membership_Plans::grant_access_to_membership()', '1.10.0' );
-	}
-
-
-	/**
-	 * Shows the duplicate plan link in admin edit screen.
-	 *
-	 * TODO remove this method by version 2.0.0 or by October 2019 {FN 2018-02-13}
-	 *
-	 * @internal
-	 *
-	 * @since 1.0.0
-	 * @deprecated since 1.10.0
-	 */
-	public function duplicate_button() {
-
-		_deprecated_function( 'WC_Memberships_Admin_Membership_Plans::duplicate_button()', '1.10.0', 'WC_Memberships_Admin_Membership_Plans::post_submitbox_start()' );
-
-		$this->post_submitbox_start();
 	}
 
 

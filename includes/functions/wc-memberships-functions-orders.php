@@ -23,13 +23,16 @@
 
 defined( 'ABSPATH' ) or exit;
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 
 /**
  * Gets an order's date (compatibility function for template files).
  *
  * @since 1.12.0
+ * @deprecated 1.16.0
+ *
+ * TODO remove this method when a) SV_WC_Order_Compatibility::get_date_prop is removed, b) by version 2.0.0, or c) by October 2020 {FN 2019-10-16}
  *
  * @param \WC_Order $order
  * @param string $date the date to retrieve
@@ -37,6 +40,8 @@ use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
  * @return null|\WC_DateTime
  */
 function wc_memberships_get_order_date( $order, $date, $context = 'edit' ) {
+
+	wc_deprecated_function( 'wc_memberships_get_order_date()', '1.16.0', '\\WC_Order dates getter methods' );
 
 	return Framework\SV_WC_Order_Compatibility::get_date_prop( $order, $date, $context );
 }
@@ -56,9 +61,9 @@ function wc_memberships_get_order_access_granted_memberships( $order ) {
 		$order = wc_get_order( (int) $order );
 	}
 
-	$meta = $order instanceof \WC_Order || $order instanceof \WC_Order_Refund ? Framework\SV_WC_Order_Compatibility::get_meta( $order, '_wc_memberships_access_granted', true ) : false;
+	$meta = $order instanceof \WC_Order || $order instanceof \WC_Order_Refund ? $order->get_meta( '_wc_memberships_access_granted' ) : false;
 
-	return ! is_array( $meta ) ? array() : $meta;
+	return ! is_array( $meta ) ? []: $meta;
 }
 
 
@@ -145,14 +150,15 @@ function wc_memberships_set_order_access_granted_membership( $order, $user_membe
 
 			$user_membership_id = $user_membership->get_id();
 			$meta               = wc_memberships_get_order_access_granted_memberships( $order );
-			$details            = wp_parse_args( $args, array(
+			$details            = wp_parse_args( $args, [
 				'already_granted'       => 'yes',
 				'granting_order_status' => $order->get_status(),
-			) );
+			] );
 
 			$meta[ $user_membership_id ] = $details;
 
-			Framework\SV_WC_Order_Compatibility::update_meta_data( $order, '_wc_memberships_access_granted', $meta );
+			$order->update_meta_data('_wc_memberships_access_granted', $meta );
+			$order->save_meta_data();
 		}
 	}
 }
@@ -270,7 +276,7 @@ function wc_memberships_get_order_thank_you_links( $order_id ) {
 	$message = '';
 
 	if ( $order_id instanceof WC_Order ) {
-		$order_id = Framework\SV_WC_Order_Compatibility::get_prop( $order_id, 'id' );
+		$order_id = $order_id->get_id();
 	}
 
 	if ( is_numeric( $order_id ) ) {
@@ -279,9 +285,9 @@ function wc_memberships_get_order_thank_you_links( $order_id ) {
 
 		if ( ! empty( $memberships ) ) {
 
-			$memberships_with_members_area = array();
+			$memberships_with_members_area = [];
 
-			foreach( $memberships as $membership_id => $data ) {
+			foreach ( $memberships as $membership_id => $data ) {
 
 				if ( 'yes' === $data['already_granted'] ) {
 

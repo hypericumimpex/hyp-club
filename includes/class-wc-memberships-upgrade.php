@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -59,6 +59,7 @@ class WC_Memberships_Upgrade extends Framework\Plugin\Lifecycle {
 			'1.11.0',
 			'1.11.1',
 			'1.13.2',
+			'1.16.2',
 		];
 	}
 
@@ -191,24 +192,6 @@ class WC_Memberships_Upgrade extends Framework\Plugin\Lifecycle {
 		// flush caches
 		$this->get_plugin()->get_restrictions_instance()->delete_public_content_cache();
 		$this->get_plugin()->get_member_discounts_instance()->delete_excluded_member_discounts_products_cache();
-	}
-
-
-	/**
-	 * Runs updates.
-	 *
-	 * TODO remove this method by version 1.14.0 {FN 2018-07-06}
-	 *
-	 * @since 1.6.2
-	 * @deprecated since 1.11.0
-	 *
-	 * @param string $installed_version semver
-	 */
-	public function run_update_scripts( $installed_version ) {
-
-		_deprecated_function( 'WC_Memberships_Upgrade::run_update_scripts()', '1.11.0' );
-
-		$this->upgrade( $installed_version );
 	}
 
 
@@ -579,6 +562,25 @@ class WC_Memberships_Upgrade extends Framework\Plugin\Lifecycle {
 				[],
 				'woocommerce-memberships'
 			);
+		}
+	}
+
+
+	/**
+	 * Updates to version 1.16.2
+	 *
+	 * Logs whether the installation was found running Action Scheduler when 1.16.0 was deployed bundling AS 3.0.0-beta.
+	 *
+	 * @since 1.16.2
+	 *
+	 * @param null|string $upgrading_from version installed
+	 */
+	protected function upgrade_to_1_16_2( $upgrading_from = null ) {
+
+		if ( in_array( $upgrading_from, [ '1.16.0', '1.16.1' ], false ) && 'yes' === get_option( 'wc_memberships_use_as_3_0_0' ) ) {
+			$this->get_plugin()->log( 'Action Scheduler 3.0.0 will be used after Memberships 1.16.0 update' );
+		} else {
+			update_option( 'wc_memberships_use_as_3_0_0', 'no' );
 		}
 	}
 

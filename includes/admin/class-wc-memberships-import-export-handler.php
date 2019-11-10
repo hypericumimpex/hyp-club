@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -730,65 +730,6 @@ class WC_Memberships_Admin_Import_Export_Handler {
 			</td>
 		</tr>
 		<?php
-	}
-
-
-	/**
-	 * Backwards compatibility handler for deprecated methods.
-	 *
-	 * TODO remove deprecated methods when they are at least 18 months old or by the next major release (e.g. 2.0.0), whichever comes earlier {FN 2019-01-28}
-	 *
-	 * @since 1.10.0
-	 *
-	 * @param string $method method called
-	 * @param void|string|array|mixed $args optional argument(s)
-	 * @return null|void|mixed
-	 */
-	public function __call( $method, $args ) {
-
-		$deprecated = "WC_Memberships_Admin_Import_Export_Handler::{$method}()";
-
-		switch ( $method ) {
-
-			/* @deprecated since 1.10.0 - remove this method by October 2019 or by version 2.0.0 */
-			case 'set_action' :
-				_deprecated_function( $deprecated, '1.10.0' );
-				return null;
-
-			/* @deprecated since 1.10.0 - remove this method by October 2019 or by version 2.0.0 */
-			case 'get_admin_page_sections' :
-				_deprecated_function( $deprecated, '1.10.0' );
-				return $this->sections;
-
-			/* @deprecated since 1.10.0 - remove this method by October 2019 or by version 2.0.0 */
-			case 'get_csv_import_user_memberships_instance' :
-				_deprecated_function( $deprecated, '1.10.0', 'wc_memberships()->get_utilities_instance()->get_user_memberships_import_instance()' );
-				return wc_memberships()->get_utilities_instance()->get_user_memberships_import_instance();
-
-			/* @deprecated since 1.10.0 - remove this method by October 2019 or by version 2.0.0 */
-			case 'get_csv_export_user_memberships_instance' :
-				_deprecated_function( $deprecated, '1.10.0', 'wc_memberships()->get_utilities_instance()->get_user_memberships_export_instance()' );
-				return wc_memberships()->get_utilities_instance()->get_user_memberships_export_instance();
-
-			/* @deprecated since 1.10.0 - remove this method by October 2019 or by version 2.0.0 */
-			case 'add_bulk_export' :
-				_deprecated_function( $deprecated, '1.10.0' );
-				return null;
-
-			/* @deprecated since 1.10.0 - remove this method by October 2019 or by version 2.0.0 */
-			case 'process_bulk_export' :
-				_deprecated_function( $deprecated, '1.10.0' );
-				return null;
-
-			/* @deprecated since 1.10.0 - remove this method by October 2019 or by version 2.0.0 */
-			case 'process_form' :
-				_deprecated_function( $deprecated, '1.10.0' );
-				return null;
-		}
-
-		// you're probably doing it wrong
-		trigger_error( "Call to undefined method {$deprecated}", E_USER_ERROR );
-		return null;
 	}
 
 

@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -474,7 +474,7 @@ class WC_Memberships_User_Memberships {
 		if ( is_numeric( $order ) ) {
 			$order_id = (int) $order;
 		} elseif ( $order instanceof \WC_Order || $order instanceof \WC_Order_Refund ) {
-			$order_id = (int) Framework\SV_WC_Order_Compatibility::get_prop( $order, 'id' );
+			$order_id = (int) $order->get_id();
 		} else {
 			return null;
 		}
@@ -988,14 +988,17 @@ class WC_Memberships_User_Memberships {
 	 * @param string $old_status old status slug
 	 * @param \WP_Post $post related WP_Post object
 	 */
-	public function transition_post_status( $new_status, $old_status, WP_Post $post ) {
+	public function transition_post_status( $new_status, $old_status, $post ) {
 
-		if ( 'wc_user_membership' !== $post->post_type || $new_status === $old_status ) {
-			return;
-		}
+		// skip if:
+		if (
+			   ! $post                                   // undetermined post (likely an error)
+			|| 'wc_user_membership' !== $post->post_type // not a membership
+			|| $new_status === $old_status               // not a status update
+			|| 'new' === $old_status                     // new post
+			|| 'auto-draft' === $old_status              // auto-draft
+		) {
 
-		// skip for new posts and auto drafts
-		if ( 'new' === $old_status || 'auto-draft' === $old_status ) {
 			return;
 		}
 

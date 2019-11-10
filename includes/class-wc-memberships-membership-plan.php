@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -1515,19 +1515,20 @@ class WC_Memberships_Membership_Plan {
 					if ( $product = wc_get_product( $post_id ) ) {
 
 						$product_id = $post_id;
-						$parent     = Framework\SV_WC_Product_Compatibility::get_parent( $product );
 
 						if ( $exclude_hidden && ! $product->is_visible() ) {
 							continue;
 						}
 
-						if ( ! empty( $parent ) && $product->is_type( 'variation' ) && $parent->is_type( 'variable' ) ) {
+						$parent = $product->is_type( 'variation' ) ? wc_get_product( $product->get_parent_id( 'edit' ) ) : null;
+
+						if ( $parent && $parent->is_type( 'variable' ) ) {
 
 							if ( $exclude_hidden && ! $parent->is_visible() ) {
 								continue;
 							}
 
-							$parent_id        = Framework\SV_WC_Product_Compatibility::get_prop( $parent, 'id' );
+							$parent_id        = $parent->get_id();
 							$can_list_product = true;
 
 							// sanity check: maybe a variation is included in this plan
@@ -1699,7 +1700,7 @@ class WC_Memberships_Membership_Plan {
 	public function get_product_discount( $product ) {
 
 		$member_discount = '';
-		$product_id      = $product instanceof \WC_Product ? Framework\SV_WC_Product_Compatibility::get_prop( $product, 'id' ) : $product;
+		$product_id      = $product instanceof \WC_Product ? $product->get_id() : $product;
 		$discount_rules  = wc_memberships()->get_rules_instance()->get_product_purchasing_discount_rules( $product_id );
 
 		foreach ( $discount_rules as $discount_rule ) {

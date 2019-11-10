@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -1181,8 +1181,8 @@ class WC_Memberships_User_Membership {
 
 						if ( $variation_product && $variation_product->is_type( 'variation' ) ) {
 
-							$parent    = Framework\SV_WC_Product_Compatibility::get_parent( $variation_product );
-							$parent_id = $parent ? $parent->get_id() : null;
+							$parent    = wc_get_product( $variation_product->get_parent_id( 'edit' ) );
+							$parent_id = ! $parent ?: $parent->get_id();
 
 							if ( $product_id && $parent_id === (int) $product_id ) {
 

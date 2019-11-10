@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -538,12 +538,12 @@ class WC_Memberships_Membership_Plans {
 					$grant_access = (bool) apply_filters( 'wc_memberships_grant_access_from_new_purchase', ! $order_granted_access_already, array(
 						'user_id'    => (int) $user_id,
 						'product_id' => (int) $product_id,
-						'order_id'   => (int) Framework\SV_WC_Order_Compatibility::get_prop( $order, 'id' ),
+						'order_id'   => (int) $order->get_id(),
 					) );
 
 					if ( $grant_access ) {
 						// delegate granting access to the membership plan instance
-						$plan->grant_access_from_purchase( $user_id, $product_id, (int) Framework\SV_WC_Order_Compatibility::get_prop( $order, 'id' ) );
+						$plan->grant_access_from_purchase( $user_id, $product_id, (int) $order->get_id() );
 					}
 				}
 			}

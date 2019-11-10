@@ -44,25 +44,6 @@ function wc_memberships_get_memberships_from_subscription( $subscription ) {
 
 
 /**
- * Checks if a membership is tied to a subscription or has a subscription product that granted access.
- *
- * @since 1.8.0
- * @deprecated since 1.10.6
- *
- * TODO remove this deprecated function by version 1.14.0 {FN 2018-07-26}
- *
- * @param int|\WC_Memberships_User_Membership|\WC_Memberships_Integration_Subscriptions_User_Membership $user_membership the user membership
- * @return bool
- */
-function wc_memberships_has_subscription_granted_access( $user_membership ) {
-
-	_deprecated_function( 'wc_memberships_has_subscription_granted_access()', '1.10.6', 'wc_memberships_is_user_membership_linked_to_subscription() or wc_memberships_has_subscription_product_granted_access()' );
-
-	return wc_memberships_is_user_membership_linked_to_subscription( $user_membership ) || wc_memberships_has_subscription_product_granted_access( $user_membership );
-}
-
-
-/**
  * Checks if a user membership is tied to a subscription.
  *
  * @since 1.10.6

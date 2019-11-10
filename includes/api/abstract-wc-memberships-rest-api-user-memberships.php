@@ -24,7 +24,7 @@
 namespace SkyVerge\WooCommerce\Memberships\API\Controller;
 
 use SkyVerge\WooCommerce\Memberships\API\Controller;
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -451,7 +451,7 @@ class User_Memberships extends Controller {
 			$order = is_numeric( $order_id ) ? wc_get_order( $order_id ) : null;
 
 			if ( $order instanceof \WC_Order || $order instanceof \WC_Order_Refund ) {
-				$user_membership->set_order_id( Framework\SV_WC_Order_Compatibility::get_prop( $order, 'id' ) );
+				$user_membership->set_order_id( $order->get_id() );
 			} else {
 				/* translators: Placeholder: %s - order identifier (may be empty) */
 				throw new \WC_REST_Exception( "woocommerce_rest_invalid_{$this->post_type}_order_id", sprintf( __( 'Order %s invalid or not found.', 'woocommerce-memberships' ), is_numeric( $order ) ? $order : '' ), 404 );
@@ -764,12 +764,12 @@ class User_Memberships extends Controller {
 
 			$order   = $user_membership->get_order();
 			$product = $user_membership->get_product( true );
-			$data    = array(
+			$data    = [
 				'id'                 => $user_membership->get_id(),
 				'customer_id'        => $user_membership->get_user_id(),
 				'plan_id'            => $user_membership->get_plan_id(),
 				'status'             => $user_membership->get_status(),
-				'order_id'           => $order ? Framework\SV_WC_Order_Compatibility::get_prop( $order, 'id' ) : null,
+				'order_id'           => $order   ? $order->get_id()   : null,
 				'product_id'         => $product ? $product->get_id() : null,
 				'date_created'       => wc_memberships_format_date( $user_membership->post->post_date, DATE_ATOM ),
 				'date_created_gmt'   => wc_memberships_format_date( $user_membership->post->post_date_gmt, DATE_ATOM ),
@@ -783,11 +783,11 @@ class User_Memberships extends Controller {
 				'cancelled_date_gmt' => $user_membership->get_cancelled_date( DATE_ATOM ),
 				'view_url'           => $user_membership->get_view_membership_url(),
 				'meta_data'          => $this->prepare_item_meta_data( $user_membership ),
-			);
+			];
 
 		} else {
 
-			$data            = array();
+			$data            = [];
 			$user_membership = null;
 		}
 
@@ -857,30 +857,30 @@ class User_Memberships extends Controller {
 	 */
 	protected function prepare_links( $user_membership, $request ) {
 
-		$links = array(
-			'self'       => array(
+		$links = [
+			'self'       => [
 				'href' => rest_url( sprintf( '/%s/%s/%d', $this->namespace, $this->rest_base, $user_membership->get_id() ) ),
-			),
-			'collection' => array(
+			],
+			'collection' => [
 				'href' => rest_url( sprintf( '/%s/%s', $this->namespace, $this->rest_base ) ),
-			),
-			'customer'   => array(
+			],
+			'customer'   => [
 				'href' => rest_url( sprintf( '/%s/customers/%d', $this->get_woocommerce_namespace(), $user_membership->get_user_id() ) ),
-			),
-		);
+			],
+		];
 
 		// an order may not be associated to a membership
 		if ( $order = $user_membership->get_order() ) {
-			$links['order'] = array(
-				'href' => rest_url( sprintf( '/%s/orders/%d', $this->get_woocommerce_namespace(), Framework\SV_WC_Order_Compatibility::get_prop( $order, 'id' ) ) ),
-			);
+			$links['order'] = [
+				'href' => rest_url( sprintf( '/%s/orders/%d', $this->get_woocommerce_namespace(), $order->get_id() ) ),
+			];
 		}
 
 		// likewise, a product might not be present
 		if ( $product = $user_membership->get_product( true ) ) {
-			$links['product'] = array(
+			$links['product'] = [
 				'href' => rest_url( sprintf( '/%s/products/%d', $this->namespace, $product->get_id() ) ),
-			);
+			];
 		}
 
 		/**

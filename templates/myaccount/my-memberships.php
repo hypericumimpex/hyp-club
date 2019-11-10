@@ -102,7 +102,7 @@ if ( ! empty( $customer_memberships ) ) : ?>
 								<?php
 
 								$order           = $customer_membership->get_order();
-								$order_datetime  = $order ? wc_memberships_get_order_date( $order, 'created' ) : null;
+								$order_datetime  = $order ? $order->get_date_created( 'edit' ) : null;
 								$order_timestamp = $order_datetime ? $order_datetime->getTimestamp() : null;
 								$past_start_date = $order_timestamp ? ( $customer_membership->get_start_date( 'timestamp' ) < $order_timestamp ) : false;
 

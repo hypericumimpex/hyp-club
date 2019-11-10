@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -1312,7 +1312,7 @@ class WC_Memberships_Rules {
 				}
 
 				// WC < 3.3 requires us to check a variation's parent's visibility
-				if ( $is_wc_version_lt_3_3 && $product->is_type( 'variation' ) && ( $parent = Framework\SV_WC_Product_Compatibility::get_parent( $product ) ) ) {
+				if ( $is_wc_version_lt_3_3 && $product->is_type( 'variation' ) && ( $parent = wc_get_product( $product->get_parent_id( 'edit' ) ) ) ) {
 					$is_visible = $parent->is_visible();
 				} else {
 					$is_visible = $product->is_visible();

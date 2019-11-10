@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -1286,22 +1286,6 @@ class WC_Memberships_Admin {
 	public function admin_bar_menu( $admin_bar ) {
 
 		$admin_bar->remove_menu( 'new-wc_user_membership' );
-	}
-
-
-	/**
-	 * Processes the legacy import export form.
-	 *
-	 * TODO remove this deprecated method by version 2.0.0 or by October 2019, whichever comes first {FN 2019-01-28}
-	 *
-	 * @internal
-	 *
-	 * @since 1.6.0
-	 * @deprecated since 1.10.0
-	 */
-	public function process_import_export_form() {
-
-		_deprecated_function( '', '1.10.0' );
 	}
 
 

@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -505,7 +505,7 @@ class WC_Memberships_Products_Restrictions {
 
 			} else {
 
-				$parent_product = Framework\SV_WC_Product_Compatibility::get_parent( $product_variation );
+				$parent_product = wc_get_product( $product_variation->get_parent_id( 'edit' ) );
 
 				if ( $parent_product instanceof \WC_Product_Variable ) {
 					foreach ( $parent_product->get_children() as $product_variation_id ) {
@@ -731,22 +731,6 @@ class WC_Memberships_Products_Restrictions {
 				}
 			}
 		}
-	}
-
-
-	/**
-	 * Maybe renders a restriction/delayed message if a user is viewing the a product category page.
-	 *
-	 * TODO remove this deprecated method by version 1.14.0 or higher {FN 2018-10-02}
-	 *
-	 * @internal
-	 *
-	 * @since 1.9.0
-	 * @deprecated since 1.11.1
-	 */
-	public function display_product_category_restricted_message() {
-
-		_deprecated_function( __CLASS__ . '::display_product_category_restricted_message()', '1.11.1' );
 	}
 
 

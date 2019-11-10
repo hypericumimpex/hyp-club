@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -67,6 +67,9 @@ class WC_Memberships_Frontend {
 		// add CSS classes for content that is part of a membership
 		add_filter( 'body_class', array( $this, 'add_membership_content_body_class' ), 10, 1 );
 		add_filter( 'post_class', array( $this, 'add_membership_content_post_class' ), 10, 3 );
+
+		// optionally redirect members upon login (setting)
+		add_action( 'woocommerce_login_redirect', [ $this, 'redirect_to_page_upon_login' ], 30, 2 );
 
 		// display a thank you message when a membership is granted upon order received
 		add_action( 'woocommerce_thankyou', array( $this, 'maybe_render_thank_you_content' ), 9 );
@@ -497,6 +500,103 @@ class WC_Memberships_Frontend {
 		}
 
 		return array( 'redirect' => $redirect_url, 'message' => $message );
+	}
+
+
+	/**
+	 * Redirects a member who just logged in according to Memberships setting.
+	 *
+	 * This callback must have a lower priority to allow for restricted content access redirects:
+	 * @see \WC_Memberships_Posts_Restrictions::redirect_to_member_content_upon_login()
+	 * @see \WC_Memberships_Posts_Restrictions::redirect_restricted_content()
+	 *
+	 * @internal
+	 *
+	 * @since 1.16.0
+	 *
+	 * @param string $original_redirect_url URL which WooCommerce is redirecting to
+	 * @param \WP_User $user member user object
+	 * @return string
+	 */
+	public function redirect_to_page_upon_login( $original_redirect_url, $user ) {
+
+		// skip for admins & shop managers
+		if ( current_user_can( 'manage_woocommerce' ) ) {
+			return $original_redirect_url;
+		}
+
+		$redirect_setting = get_option( 'wc_memberships_redirect_upon_member_login', 'no_redirect' );
+
+		if ( 'no_redirect' !== $redirect_setting ) {
+
+			$no_query_var_redirect_url = preg_replace( '/\?.*/', '', $original_redirect_url );
+
+			// retain default behavior if customer is logging in at checkout
+			if ( in_array( wc_get_checkout_url(), [ $original_redirect_url, $no_query_var_redirect_url ], true ) || in_array( wc_get_cart_url(), [ $original_redirect_url, $no_query_var_redirect_url ], true ) ) {
+				$redirect_setting = 'no_redirect';
+			}
+		}
+
+		if ( $user && wc_memberships_is_user_active_member( $user ) ) {
+
+			$new_redirect_url = $original_redirect_url;
+
+			switch ( $redirect_setting ) {
+
+				case 'site_page' :
+
+					$redirect_to_page_id = get_option( 'wc_memberships_member_login_redirect_page_id', 0 );
+
+					// the member must be able to access to this page, otherwise retain default behavior
+					if ( is_numeric( $redirect_to_page_id ) && $redirect_to_page_id > 0 && wc_memberships_user_can( $user->ID, 'view', [ 'page' => $redirect_to_page_id ] ) ) {
+						$new_redirect_url = get_permalink( $redirect_to_page_id );
+					}
+
+				break;
+
+				case 'members_area' :
+
+					$plans = 0;
+
+					foreach ( wc_memberships_get_user_active_memberships( $user ) as $user_membership ) {
+
+						$plan = $user_membership->get_plan();
+
+						if ( $plan && count( $plan->get_members_area_sections() ) > 0 ) {
+
+							$new_redirect_url = wc_memberships_get_members_area_url( $plan->get_id() );
+
+							$plans++;
+
+							// if there are two or more plans with a members area, just use the members area plans directory
+							if ( 2 === $plans ) {
+
+								$new_redirect_url = wc_memberships_get_members_area_url();
+								break;
+							}
+						}
+					}
+
+				break;
+			}
+
+			if ( ! is_string( $new_redirect_url ) || '' === trim( $new_redirect_url ) ) {
+				$new_redirect_url = $original_redirect_url;
+			}
+
+			/**
+			 * Filters the URL to redirect the logged in member to.
+			 *
+			 * @since 1.16.0
+			 *
+			 * @param string $new_redirect_url URL to redirect member to
+			 * @param string $original_redirect_url URL where WooCommerce originally intended to redirect the member to
+			 * @param \WP_User $user the member user object
+			 */
+			$original_redirect_url = (string) apply_filters( 'wc_memberships_member_login_redirect_url', $new_redirect_url, $original_redirect_url, $user );
+		}
+
+		return $original_redirect_url;
 	}
 
 

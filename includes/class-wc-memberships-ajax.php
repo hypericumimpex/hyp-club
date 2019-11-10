@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -171,8 +171,8 @@ class WC_Memberships_AJAX {
 
 		check_ajax_referer( 'search-posts', 'security' );
 
-		$term      = (string) wc_clean( stripslashes( Framework\SV_WC_Helper::get_request( 'term' ) ) );
-		$post_type = (string) wc_clean( Framework\SV_WC_Helper::get_request( 'post_type' ) );
+		$term      = (string) wc_clean( stripslashes( Framework\SV_WC_Helper::get_requested_value( 'term' ) ) );
+		$post_type = (string) wc_clean( Framework\SV_WC_Helper::get_requested_value( 'post_type' ) );
 
 		if ( empty( $term ) || empty( $post_type ) ) {
 			die();
@@ -234,8 +234,8 @@ class WC_Memberships_AJAX {
 
 		check_ajax_referer( 'search-terms', 'security' );
 
-		$term     = (string) wc_clean( stripslashes( Framework\SV_WC_Helper::get_request( 'term' ) ) );
-		$taxonomy = (string) wc_clean( Framework\SV_WC_Helper::get_request( 'taxonomy' ) );
+		$term     = (string) wc_clean( stripslashes( Framework\SV_WC_Helper::get_requested_value( 'term' ) ) );
+		$taxonomy = (string) wc_clean( Framework\SV_WC_Helper::get_requested_value( 'taxonomy' ) );
 
 		if ( empty( $term ) || empty( $taxonomy ) ) {
 			die();

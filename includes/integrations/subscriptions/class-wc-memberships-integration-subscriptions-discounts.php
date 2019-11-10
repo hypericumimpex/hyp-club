@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -154,7 +154,7 @@ class WC_Memberships_Integration_Subscriptions_Discounts {
 					if ( 'variable-subscription' === $product->get_type() ) {
 
 						// with variable subscription product we need to insert the before price after the "From:" string
-						$from_text = Framework\SV_WC_Product_Compatibility::wc_get_price_html_from_text( $product );
+						$from_text = wc_get_price_html_from_text( $product );
 
 						if ( Framework\SV_WC_Helper::str_starts_with( $html_price, $from_text ) || ( is_rtl() && Framework\SV_WC_Helper::str_ends_with( $html_price, $from_text ) ) ) {
 							$html_price = $from_text . ' <del>' . wc_price( $price_before_discount ) . '</del> ' . wc_price( $price_after_discount ) . ' ';

@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 /**
  * WooCommerce Memberships CLI Subscriptions extension.
@@ -224,7 +224,7 @@ class WC_Memberships_Integration_Subscriptions_CLI {
 				throw new \WC_CLI_Exception( 'woocommerce_memberships_subscription_not_found', sprintf( 'Subscription %s not found.', $data['subscription'] ) );
 			}
 
-			$data['subscription'] = (int) Framework\SV_WC_Order_Compatibility::get_prop( $subscription, 'id' );
+			$data['subscription'] = (int) $subscription->get_id();
 		}
 
 		return $data;

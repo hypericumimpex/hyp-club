@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -94,15 +94,11 @@ class WC_Memberships_Integration_Subscriptions_Admin {
 	private function get_edit_subscription_input( $user_membership, $subscription = null ) {
 
 		if ( $subscription && $subscription instanceof \WC_Subscription ) {
-			$subscription_id   = Framework\SV_WC_Order_Compatibility::get_prop( $subscription, 'id' );
+			$subscription_id   = $subscription->get_id();
 			$subscription_url  = get_edit_post_link( $subscription_id );
 			$subscription_link = '<a href="' . esc_url( $subscription_url ) . '">' . esc_html( $subscription_id ) . '</a>';
-			$selected          = array(
-				$subscription_id => wc_memberships()->get_integrations_instance()->get_subscriptions_instance()->get_formatted_subscription_id_holder_name( $subscription ),
-			);
 		} else {
-			$selected        = array();
-			$subscription_id = '';
+			$subscription_id   = '';
 			$subscription_link = esc_html__( 'Membership not linked to a Subscription', 'woocommerce-memberships' );
 		}
 
@@ -504,7 +500,7 @@ class WC_Memberships_Integration_Subscriptions_Admin {
 
 				if ( $subscription instanceof \WC_Subscription ) {
 
-					$actions['delete-with-subscription'] = '<a class="delete-membership-and-subscription" title="' . esc_attr__( 'Delete this membership permanently and the subscription associated with it', 'woocommerce-memberships' ) . '" href="#" data-user-membership-id="' . esc_attr( $user_membership->get_id() ) . '" data-subscription-id="' . esc_attr( Framework\SV_WC_Order_Compatibility::get_prop( $subscription, 'id' ) ) . '">' . esc_html__( 'Delete with subscription', 'woocommerce-memberships' ) . '</a>';
+					$actions['delete-with-subscription'] = '<a class="delete-membership-and-subscription" title="' . esc_attr__( 'Delete this membership permanently and the subscription associated with it', 'woocommerce-memberships' ) . '" href="#" data-user-membership-id="' . esc_attr( $user_membership->get_id() ) . '" data-subscription-id="' . esc_attr( $subscription->get_id() ) . '">' . esc_html__( 'Delete with subscription', 'woocommerce-memberships' ) . '</a>';
 				}
 			}
 		}
@@ -603,18 +599,18 @@ class WC_Memberships_Integration_Subscriptions_Admin {
 
 			if ( $subscription instanceof \WC_Subscription ) {
 
-				$actions = array_merge( array(
-					'delete-with-subscription' => array(
+				$actions = array_merge( [
+					'delete-with-subscription' => [
 						'class'             => 'submitdelete delete-membership-and-subscription',
 						'link'              => '#',
 						'text'              => __( 'Delete User Membership with Subscription', 'woocommerce-memberships' ),
-						'custom_attributes' => array(
+						'custom_attributes' => [
 							'data-user-membership-id' => $user_membership_id,
-							'data-subscription-id'    => Framework\SV_WC_Order_Compatibility::get_prop( $subscription, 'id' ),
+							'data-subscription-id'    => $subscription->get_id(),
 							'data-tip'                => __( 'Delete this membership permanently and the subscription associated with it', 'woocommerce-memberships' ),
-						),
-					),
-				), $actions );
+						],
+					],
+				], $actions );
 			}
 		}
 

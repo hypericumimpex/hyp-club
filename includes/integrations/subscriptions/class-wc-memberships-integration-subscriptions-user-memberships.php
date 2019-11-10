@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -465,7 +465,7 @@ class WC_Memberships_Integration_Subscriptions_User_Memberships {
 
 		if ( $user_membership instanceof \WC_Memberships_Integration_Subscriptions_User_Membership && ( $subscription = $user_membership->get_subscription() ) ) {
 
-			$data['subscription_id'] = Framework\SV_WC_Order_Compatibility::get_prop( $subscription, 'id' );
+			$data['subscription_id'] = $subscription->get_id();
 		}
 
 		return $data;
@@ -487,9 +487,9 @@ class WC_Memberships_Integration_Subscriptions_User_Memberships {
 
 		if ( $user_membership instanceof \WC_Memberships_Integration_Subscriptions_User_Membership && ( $subscription = $user_membership->get_subscription() ) ) {
 
-			$links['subscription'] = array(
-				'href' => rest_url( sprintf( '/%s/subscriptions/%d', 'wc/v1', Framework\SV_WC_Order_Compatibility::get_prop( $subscription, 'id' ) ) ),
-			);
+			$links['subscription'] = [
+				'href' => rest_url( sprintf( '/%s/subscriptions/%d', 'wc/v1', $subscription->get_id() ) ),
+			];
 		}
 
 		return $links;
@@ -626,7 +626,7 @@ class WC_Memberships_Integration_Subscriptions_User_Memberships {
 
 					$subscription_membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( $user_membership->post );
 
-					$subscription_membership->set_subscription_id( Framework\SV_WC_Order_Compatibility::get_prop( $subscription, 'id' ) );
+					$subscription_membership->set_subscription_id( $subscription->get_id() );
 
 					if ( null !== $installment_plan ) {
 

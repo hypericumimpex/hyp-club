@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -282,7 +282,7 @@ class WC_Memberships_Integration_Subscriptions {
 	public function handle_subscription_status_change( \WC_Subscription $subscription, $new_subscription_status, $old_subscription_status ) {
 
 		// get Memberships tied to the Subscription
-		$user_memberships = $this->get_memberships_from_subscription( Framework\SV_WC_Order_Compatibility::get_prop( $subscription, 'id' ) );
+		$user_memberships = $this->get_memberships_from_subscription( $subscription->get_id() );
 
 		// bail out if no memberships found
 		if ( ! $user_memberships ) {
@@ -309,7 +309,7 @@ class WC_Memberships_Integration_Subscriptions {
 	 */
 	public function update_related_membership_dates( \WC_Subscription $subscription, $date_type, $datetime ) {
 
-		if ( 'end' === $date_type && ( $user_memberships = $this->get_memberships_from_subscription( Framework\SV_WC_Order_Compatibility::get_prop( $subscription, 'id' ) ) ) ) {
+		if ( 'end' === $date_type && ( $user_memberships = $this->get_memberships_from_subscription( $subscription->get_id() ) ) ) {
 
 			foreach ( $user_memberships as $user_membership ) {
 
@@ -566,7 +566,7 @@ class WC_Memberships_Integration_Subscriptions {
 	 */
 	public function handle_subscription_switches( $subscription, $new_order_item, $old_order_item ) {
 
-		$subscription_id  = $subscription ? Framework\SV_WC_Order_Compatibility::get_prop( $subscription, 'id' ) : null;
+		$subscription_id  = $subscription ? $subscription->get_id() : null;
 		$user_memberships = $subscription_id ? $this->get_memberships_from_subscription( $subscription_id ) : array();
 
 		if ( ! empty( $user_memberships ) ) {
@@ -618,7 +618,7 @@ class WC_Memberships_Integration_Subscriptions {
 	public function handle_subscription_removal( $removed_item, $subscription ) {
 
 		$current_action     = current_action();
-		$subscription_id    = $subscription ? Framework\SV_WC_Order_Compatibility::get_prop( $subscription, 'id' ) : null;
+		$subscription_id    = $subscription ? $subscription->get_id() : null;
 		$is_variation       = null;
 		$removed_product_id = 0;
 
@@ -733,7 +733,7 @@ class WC_Memberships_Integration_Subscriptions {
 		if ( is_numeric( $subscription ) ) {
 			$subscription_id = (int) $subscription;
 		} elseif ( is_object( $subscription ) ) {
-			$subscription_id = (int) Framework\SV_WC_Order_Compatibility::get_prop( $subscription, 'id' );
+			$subscription_id = (int) $subscription->get_id();
 		}
 
 		if ( ! empty( $subscription_id ) ) {
@@ -845,8 +845,9 @@ class WC_Memberships_Integration_Subscriptions {
 	 * @return string
 	 */
 	public function get_formatted_subscription_id_holder_name( \WC_Subscription $subscription ) {
+
 		/* translators: Placeholders: %1$s - The Subscription's id, %2$s - The Subscription's holder full name */
-		return sprintf( __( 'Subscription #%1$s - %2$s', 'woocommerce-memberships' ), Framework\SV_WC_Order_Compatibility::get_prop( $subscription, 'id' ), $subscription->get_formatted_billing_full_name() );
+		return sprintf( __( 'Subscription #%1$s - %2$s', 'woocommerce-memberships' ), $subscription->get_id(), $subscription->get_formatted_billing_full_name() );
 	}
 
 
@@ -1065,7 +1066,7 @@ class WC_Memberships_Integration_Subscriptions {
 		$user_membership_id        = $user_membership instanceof \WC_Memberships_User_Membership ? $user_membership->get_id() : (int) $user_membership;
 		$subscription_membership   = new \WC_Memberships_Integration_Subscriptions_User_Membership( $user_membership_id );
 		$linked_subscription_id    = (int) $subscription_membership->get_subscription_id();
-		$unlinking_subscription_id = is_object( $unlink_subscription ) ? (int) Framework\SV_WC_Order_Compatibility::get_prop( $unlink_subscription, 'id' ) : (int) $unlink_subscription;
+		$unlinking_subscription_id = is_object( $unlink_subscription ) ? (int) $unlink_subscription->get_id() : (int) $unlink_subscription;
 
 		if ( $linked_subscription_id > 0 && $unlinking_subscription_id > 0 && $linked_subscription_id !== $unlinking_subscription_id ) {
 			$unlinked = null;

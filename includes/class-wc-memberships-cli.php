@@ -32,12 +32,12 @@
  */
 
 // Sanity check
-if ( ! class_exists( 'WP_CLI_Command' ) ) {
+if ( ! class_exists( 'WP_CLI_Command', false ) ) {
 	return;
 }
 
 // WooCommerce v3.0 CLI implementation is different
-if ( SkyVerge\WooCommerce\PluginFramework\v5_4_1\SV_WC_Plugin_Compatibility::is_wc_version_gte_3_0() && ! class_exists( 'WC_CLI_Command' ) ) {
+if ( SkyVerge\WooCommerce\PluginFramework\v5_5_0\SV_WC_Plugin_Compatibility::is_wc_version_gte( '3.0' ) && ! class_exists( 'WC_CLI_Command', false ) ) {
 
 	/**
 	 * Re-introduce WooCommerce WC_CLI_Command for compatibility.

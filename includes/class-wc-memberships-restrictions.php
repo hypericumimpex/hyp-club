@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -1165,10 +1165,10 @@ class WC_Memberships_Restrictions {
 	 */
 	public function get_products_that_grant_access( $restricted_content, $args = array() ) {
 
-		$access_products = array();
+		$access_products = [];
 
 		if ( $restricted_content instanceof \WC_Product ) {
-			$object = Framework\SV_WC_Product_Compatibility::get_prop( $restricted_content, 'post' );
+			$object = get_post( $restricted_content->get_id() );
 		} else {
 			$object = $restricted_content; // post or term: if it's an integer we must assume post ID
 		}
@@ -1242,10 +1242,10 @@ class WC_Memberships_Restrictions {
 	 */
 	public function get_products_that_grant_discount( $restricted_shop_content, $args = array() ) {
 
-		$discount_access_products = array();
+		$discount_access_products = [];
 
 		if ( $restricted_shop_content instanceof \WC_Product ) {
-			$object = Framework\SV_WC_Product_Compatibility::get_prop( $restricted_shop_content, 'post' );
+			$object = get_post( $restricted_shop_content->get_id() );
 		} else {
 			$object = $restricted_shop_content; // post or term: if it's an integer we must assume post ID
 		}

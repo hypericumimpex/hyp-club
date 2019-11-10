@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -182,7 +182,7 @@ class WC_Memberships_Integration_Subscriptions_User_Membership extends \WC_Membe
 		if ( $subscription = wcs_get_subscription( $subscription_id ) ) {
 
 			$old_subscription_id = $this->get_subscription_id();
-			$new_subscription_id = (int) Framework\SV_WC_Order_Compatibility::get_prop( $subscription, 'id' );
+			$new_subscription_id = (int) $subscription->get_id();
 			$set_subscription_id = (bool) update_post_meta( $this->id, $this->subscription_id_meta, $new_subscription_id );
 
 			if ( $set_subscription_id ) {

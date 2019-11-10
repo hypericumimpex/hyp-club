@@ -5,11 +5,11 @@
  * Description: Sell memberships that provide access to restricted content, products, discounts, and more!
  * Author: Romeo C.
  * Author URI: https://github.com/hypericumimpex/
- * Version: 1.15.3
+ * Version: 1.16.2
  * Text Domain: woocommerce-memberships
  * Domain Path: /i18n/languages/
  *
- * Copyright: (c) 2014-2019 SkyVerge, Inc. (info@skyverge.com)
+ * Copyright: (c) 2014-2019 Hypericum
  *
  * License: GNU General Public License v3.0
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -20,7 +20,7 @@
  *
  * Woo: 958589:9288e7609ad0b487b81ef6232efa5cfc
  * WC requires at least: 3.0.9
- * WC tested up to: 3.7.1
+ * WC tested up to: 3.8
  */
 
 defined( 'ABSPATH' ) or exit;
@@ -38,9 +38,50 @@ if ( ! is_woocommerce_active() ) {
 	return;
 }
 
-// Required Action Scheduler library
+// Load required Action Scheduler library
 // TODO: when WooCommerce 3.5 is the minimum required version we can stop bundling Action Scheduler as it's now part of core WooCommerce {FN 2018-10-09}
-require_once( plugin_dir_path( __FILE__ ) . 'vendor/prospress/action-scheduler/action-scheduler.php' );
+
+// during deploy of 1.16.0 Action Scheduler we accidentally bundled AS 3.0.0-beta-1 and some customers may have migrated: these customers need to continue using version 3.0.0 as they can't roll back to 2.x
+// TODO remove the conditional handling when we can bundle AS 3.0.0 {FN 2019-11-06}
+$load_as_3_0_0 = $as_table_name = false;
+
+// if this flag was set during 1.16.2 update, then keep loading Action Scheduler 3.0.0
+if ( 'yes' === get_option( 'wc_memberships_use_as_3_0_0' ) ) {
+
+	$load_as_3_0_0 = true;
+
+// check if updating from one of the affected memberships versions before 1.16.2
+} elseif ( in_array( get_option( 'wc_memberships_version' ), array( '1.16.0', '1.16.1' ), false ) ) {
+	global $wpdb;
+
+	$as_table_name = $wpdb->prefix . 'actionscheduler_actions';
+
+	// skip if there is no Action Scheduler table: migration hasn't started
+	if ( $as_table_name === $wpdb->get_var( "SHOW TABLES LIKE '{$as_table_name}'" ) ) {
+
+		update_option( 'wc_memberships_use_as_3_0_0', 'yes' );
+
+		$load_as_3_0_0 = true;
+
+		// check if data was only partially migrated by looking if there is at least one scheduled action post
+		if ( $wpdb->get_row( "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'scheduled-action'" ) ) {
+			// deleting this option should trigger data migration again
+			delete_option( 'action_scheduler_migration_status' );
+		}
+
+	} else {
+
+		update_option( 'wc_memberships_use_as_3_0_0', 'no' );
+	}
+}
+
+if ( $load_as_3_0_0 ) {
+	require_once( plugin_dir_path( __FILE__ ) . 'lib/prospress/action-scheduler/action-scheduler.php' );
+} else {
+	require_once( plugin_dir_path( __FILE__ ) . 'vendor/prospress/action-scheduler/action-scheduler.php' );
+}
+
+unset( $load_as_3_0_0, $as_table_name );
 
 /**
  * WooCommerce Memberships plugin loader.
@@ -60,7 +101,7 @@ class WC_Memberships_Loader {
 	const MINIMUM_WC_VERSION = '3.0.9';
 
 	/** SkyVerge plugin framework version used by this plugin */
-	const FRAMEWORK_VERSION = '5.4.1';
+	const FRAMEWORK_VERSION = '5.5.0';
 
 	/** the plugin name, for displaying notices */
 	const PLUGIN_NAME = 'WooCommerce Memberships';

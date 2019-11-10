@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -36,7 +36,7 @@ class WC_Memberships extends Framework\SV_WC_Plugin  {
 
 
 	/** plugin version number */
-	const VERSION = '1.15.3';
+	const VERSION = '1.16.2';
 
 	/** @var \WC_Memberships single instance of this plugin */
 	protected static $instance;
@@ -683,6 +683,30 @@ class WC_Memberships extends Framework\SV_WC_Plugin  {
 	}
 
 
+	/**
+	 * Adds any delayed admin notices.
+	 *
+	 * @since 1.16.2
+	 */
+	public function add_delayed_admin_notices() {
+
+		parent::add_delayed_admin_notices();
+
+		if ( 'yes' === get_option( 'wc_memberships_use_as_3_0_0' ) ) {
+
+			$message = sprintf(
+				__( '%1$sHeads up!%2$s We introduced a bug in version 1.16.0 of Memberships that caused issues with scheduled actions. We\'re so sorry for this issue! The bug should be resolved in the current version, but %3$splease contact our support team immediately%4$s if you notice any further issues.', 'woocommerce-memberships' ),
+				'<strong>', '</strong>',
+				'<a href="' . esc_url( 'https://woocommerce.com/my-account/create-a-ticket/' ) . '">', '</a>'
+			);
+
+			$this->get_admin_notice_handler()->add_admin_notice( $message, 'wc-memberships-action-scheduler-migration', [
+				'notice_class' => 'notice-info',
+			] );
+		}
+	}
+
+
 	/** Helper methods ******************************************************/
 
 
@@ -754,6 +778,11 @@ class WC_Memberships extends Framework\SV_WC_Plugin  {
 	 * @return array
 	 */
 	public function add_query_vars( $query_vars ) {
+
+		// this may happen if some third party code triggers 'woocommerce_get_query_vars' before init, when these functions are initialized
+		if ( ! function_exists( 'wc_memberships_get_members_area_query_var' ) || ! function_exists( 'wc_memberships_get_members_area_endpoint' ) ) {
+			return $query_vars;
+		}
 
 		$query_var = wc_memberships_get_members_area_query_var();
 

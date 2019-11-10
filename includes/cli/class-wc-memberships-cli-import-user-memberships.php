@@ -23,7 +23,7 @@
 
 namespace SkyVerge\WooCommerce\Memberships\CLI;
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 

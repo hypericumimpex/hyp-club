@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_3_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 /**
  * Manage User Memberships from WP CLI.
@@ -129,7 +129,7 @@ class WC_Memberships_CLI_User_Membership extends \WC_Memberships_CLI_Command {
 					throw new Framework\WC_CLI_Exception( 'woocommerce_memberships_order_not_found', sprintf( 'Order "%s" not found.', $data['order'] ) );
 				}
 
-				$order_id = (int) Framework\SV_WC_Order_Compatibility::get_prop( $order, 'id' );
+				$order_id = (int) $order->get_id();
 			}
 
 			$start_date = false;
@@ -336,7 +336,7 @@ class WC_Memberships_CLI_User_Membership extends \WC_Memberships_CLI_Command {
 					throw new \WC_CLI_Exception( 'woocommerce_memberships_order_not_found', sprintf( 'Order %s not found.', $data['order'] ) );
 				}
 
-				$order_id = (int) Framework\SV_WC_Order_Compatibility::get_prop( $order, 'id' );
+				$order_id = (int) $order->get_id();
 			}
 
 			$plan_id = 0;

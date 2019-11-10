@@ -86,9 +86,9 @@ else :
 				}
 
 				if ( $product->is_type( 'variation' ) ) {
-					$parent      = wc_memberships_get_product_parent( $product );
-					$product_id  = $parent->get_id();
-					$the_product = $parent;
+					$parent      = wc_get_product( $product->get_parent_id( 'edit' ) );
+					$product_id  = $parent ? $parent->get_id() : 0;
+					$the_product = $parent ?: null;
 				} else {
 					$product_id  = $product->get_id();
 					$the_product = $product;

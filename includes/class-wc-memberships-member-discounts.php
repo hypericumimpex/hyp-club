@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_4_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_5_0 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -657,23 +657,23 @@ class WC_Memberships_Member_Discounts {
 	 */
 	public function get_variable_price_html_suffix( $price_display_suffix, $product ) {
 
-		$price_display_suffix_raw  = $price_display_suffix_raw_test = get_option( 'woocommerce_price_display_suffix' );
-		$price_suffix_merge_tags   = array(
+		$price_display_suffix_raw = $price_display_suffix_raw_test = get_option( 'woocommerce_price_display_suffix' );
+		$price_suffix_merge_tags  = [
 			'{price_including_tax}',
 			'{price_excluding_tax}',
-		);
+		];
 
-		if ( str_replace( $price_suffix_merge_tags, array( '', '' ), $price_display_suffix_raw_test ) !== $price_display_suffix_raw ) {
+		if ( str_replace( $price_suffix_merge_tags, [ '', '' ], $price_display_suffix_raw_test ) !== $price_display_suffix_raw ) {
 
 			$variation_prices = $product->get_variation_prices();
-			$variation_prices = array_keys( $variation_prices[ 'price' ] );
+			$variation_prices = array_keys( $variation_prices['price'] );
 
 			if ( ! empty( $variation_prices ) && ( $min_variation = wc_get_product( current( $variation_prices ) ) ) ) {
 
-				$replace = array(
-					wc_price( Framework\SV_WC_Product_Compatibility::wc_get_price_including_tax( $min_variation ) ),
-					wc_price( Framework\SV_WC_Product_Compatibility::wc_get_price_excluding_tax( $min_variation ) ),
-				);
+				$replace = [
+					wc_price( wc_get_price_including_tax( $min_variation ) ),
+					wc_price( wc_get_price_excluding_tax( $min_variation ) ),
+				];
 
 				$price_suffix         = str_replace( $price_suffix_merge_tags, $replace, $price_display_suffix_raw );
 				$price_display_suffix = ' <small class="woocommerce-price-suffix">' . $price_suffix . '</small>';
@@ -1008,7 +1008,7 @@ class WC_Memberships_Member_Discounts {
 		     &&   $this->user_has_member_discount( $variation ) ) {
 
 			if ( 'woocommerce_variation_prices_sale_price' === current_filter() ) {
-				$member_price = apply_filters( 'woocommerce_variation_prices_price', Framework\SV_WC_Product_Compatibility::get_prop( $variation, 'price' ), $variation, $product );
+				$member_price = apply_filters( 'woocommerce_variation_prices_price', $variation->get_price( 'edit' ), $variation, $product );
 			} else {
 				$member_price = $this->get_discounted_price( $price, $variation, get_current_user_id() );
 			}
@@ -1087,8 +1087,8 @@ class WC_Memberships_Member_Discounts {
 			// temporarily disable membership price adjustments
 			do_action( 'wc_memberships_discounts_disable_price_adjustments' );
 
-			$price         = apply_filters( 'woocommerce_variation_prices_price', Framework\SV_WC_Product_Compatibility::get_prop( $variation, 'price' ), $variation, $product );
-			$sale_price    = apply_filters( 'woocommerce_variation_prices_sale_price', Framework\SV_WC_Product_Compatibility::get_prop( $variation, 'sale_price' ), $variation, $product );
+			$price         = apply_filters( 'woocommerce_variation_prices_price', $variation->get_price( 'edit' ), $variation, $product );
+			$sale_price    = apply_filters( 'woocommerce_variation_prices_sale_price', $variation->get_sale_price( 'edit' ), $variation, $product );
 			$regular_price = $regular_price !== $sale_price && $price === $sale_price ? $sale_price : $regular_price;
 
 			// re-enable membership price adjustments
@@ -1152,7 +1152,7 @@ class WC_Memberships_Member_Discounts {
 			$the_post = $post;
 
 			if ( ! $the_post instanceof \WP_Post ) {
-				$the_post = Framework\SV_WC_Product_Compatibility::get_prop( $product, 'post' );
+				$the_post = get_post( $product->get_id() );
 			}
 
 			$badge = '<span class="onsale wc-memberships-member-discount">' . esc_html( $label ) . '</span>';
@@ -1590,7 +1590,7 @@ class WC_Memberships_Member_Discounts {
 			// if the product is a variation, add discounts applying for the parent variable too
 			if ( $product->is_type( 'variation' ) ) {
 
-				$parent_product = Framework\SV_WC_Product_Compatibility::get_parent( $product );
+				$parent_product = wc_get_product( $product->get_parent_id( 'edit' ) );
 
 				if ( $parent_product && ! $this->is_product_excluded_from_member_discounts( $parent_product ) ) {
 

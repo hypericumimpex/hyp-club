@@ -1,6 +1,17 @@
 *** WooCommerce Memberships Changelog ***
 
-<<<<<<< HEAD
+2019.11.06 - version 1.16.2
+ * Fix - Load Action Scheduler 3.0 for installations that have migrated data during 1.16.0 update
+
+2019.11.05 - version 1.16.1
+ * Fix - Fix a number of errors due to Action Scheduler being incorrectly bundled
+
+2019.11.05 - version 1.16.0
+ * Feature - Add setting to optionally redirect members to page upon successful login
+ * Fix - Do not filter `woocommerce_get_query_vars` if third party code invokes this hook before `init`, to avoid PHP undefined function errors
+ * Misc - Add support for WooCommerce 3.8
+ * Localization - Add Japanese translation, courtesy Shohei Tanaka (info@artws.info)
+
 2019.10.15 - version 1.15.3
  * Fix - Use the chosen timezone when creating the import job if the option to do so is selected
  * Fix - Ensure that plans using fixed dates have memberships setting their start and end dates at midnight
@@ -32,9 +43,6 @@
  * Misc - Require PHP 5.6+
 
 2019.07.18 - version 1.13.2
-=======
-2019.07.18 - version 1.13.2.
->>>>>>> c37c6db33b4442b5388ba1e062ff0eb28a7bdf7b
  * Tweak - Consider a subscription-tied membership renewable regardless of its status if it has an expiry date and early renewal is allowed
  * Tweak - Allow sending ending soon emails for memberships that are linked to a subscription if the latter can be renewed early
  * Tweak - Create index.html and .htaccess files in exports folder
